@@ -1,0 +1,38 @@
+name: Build LaTeX documents
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+
+      - name: Install Tectonic 0.16.9
+        shell: bash
+        run: |
+          curl --fail --location --silent --show-error \
+            https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic@0.16.9/tectonic-0.16.9-x86_64-unknown-linux-musl.tar.gz \
+            | tar --extract --gzip
+          chmod +x tectonic
+          echo "TECTONIC=$PWD/tectonic" >> "$GITHUB_ENV"
+
+      - name: Compile report and presentation
+        run: python scripts/build.py all
+
+      - name: Upload PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualification-exam-documents
+          path: |
+            build/main.pdf
+            build/presentation.pdf

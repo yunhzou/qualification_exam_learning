@@ -1,0 +1,9 @@
+[project]
+name = "qualification-exam-learning"
+version = "0.1.0"
+description = "Utilities for an LLM post-training learning and PhD qualification-exam workspace"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

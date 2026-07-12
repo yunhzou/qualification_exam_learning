@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,allcolors=blue!55!black]{hyperref}
+
+\geometry{margin=1in}
+\setlist{nosep}
+\title{LLM Post-Training: Qualification Exam Synthesis}
+\author{Yunhzou}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report synthesizes selected papers on large language model post-training. It connects
+their methods, assumptions, empirical evidence, and limitations to a coherent view of
+how post-training changes model behavior.
+\end{abstract}
+
+\tableofcontents
+
+\section{Scope and guiding questions}
+Define the post-training problem, the selection criteria for the five papers, and the
+questions that connect the literature to the practical learning work in this repository.
+Transformer foundations provide the architectural context for this analysis
+\citep{vaswani2017attention}.
+
+\section{Paper reviews}
+\input{tex/papers/paper-01}
+\input{tex/papers/paper-02}
+\input{tex/papers/paper-03}
+\input{tex/papers/paper-04}
+\input{tex/papers/paper-05}
+
+\section{Cross-paper synthesis}
+Compare the objectives, data requirements, optimization strategies, evaluation methods,
+and tradeoffs across the five papers. Distinguish claims supported by evidence from open
+questions and personal hypotheses.
+
+\section{Connection to experiments}
+Relate the literature to the post-training experiments in this repository, including
+which findings reproduced, which assumptions did not transfer, and what should be tested
+next.
+
+\section{Conclusion}
+Summarize the current understanding of LLM post-training and the most important unresolved
+research questions.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
