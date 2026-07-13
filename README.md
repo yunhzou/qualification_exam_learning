@@ -15,6 +15,7 @@ The concrete milestones and handbook-based exam constraints are recorded in [GOA
 - `presentation.tex`: Beamer presentation.
 - `GOALS.md`: learning goals, deliverables, and qualification-exam requirements.
 - `learning_list.md`: the evolving topic map for the LLM training curriculum.
+- `notebooks/`: algorithm-focused, executable learning modules.
 - `tex/papers/`: structured notes for each of the five papers.
 - `references.bib`: shared bibliography for the report and presentation.
 - `papers/`: local paper PDFs (ignored by Git to avoid redistributing copyrighted files).
@@ -41,6 +42,16 @@ powershell -ExecutionPolicy Bypass -File scripts/bootstrap.ps1
 Generated PDFs are written to `build/main.pdf` and `build/presentation.pdf`. Compile only one target with `scripts/build.py report` or `scripts/build.py presentation`.
 
 GitHub Actions runs the same build for every push and pull request and uploads both PDFs as a workflow artifact.
+
+## Learning notebooks
+
+Install the lightweight CPU training environment into the existing virtual environment:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-learning.txt
+```
+
+Open `notebooks/01_transformer_and_sft.ipynb` in a notebook-capable editor and select `.venv` as the kernel. It implements causal multi-head attention and response-masked SFT directly with PyTorch tensors; it does not use Transformers, TRL, datasets, or a training framework.
 
 On macOS or Linux, create a Python 3.12 virtual environment, install Tectonic using its official installation instructions, and run:
 
