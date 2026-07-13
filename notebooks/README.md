@@ -36,3 +36,9 @@ The named kernel **Python (.venv - qualification exam)** may also appear in the 
 3. `03_on_policy_distillation.ipynb`: Thinking Machines Lab-inspired on-policy distillation and state-distribution coverage.
 
 All notebooks use the same `.venv` kernel and CPU-only dependency set.
+
+## Side studies
+
+`side_studies/` contains small, self-contained notebooks created from individual learning questions. These notebooks are intentionally outside the numbered core curriculum: they preserve useful examples without changing the main post-training sequence.
+
+A side study should focus on one question, include an executable minimal example when appropriate, state the important tensor shapes or algorithm steps, and end with a short takeaway. Create one when it is explicitly requested rather than converting every discussion into a notebook.
