@@ -9,3 +9,4 @@
 ## Anchor papers
 
 - **Reinforcement learning:** DeepSeek-AI et al., *DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning* ([arXiv](https://arxiv.org/abs/2501.12948), [Nature](https://www.nature.com/articles/s41586-025-09422-z)). Use it to organize the GRPO, verifiable-reward, cold-start, reasoning-RL, and distillation modules; see `notes/rl/deepseek-r1-reading-guide.md`.
+- **Distillation:** Kevin Lu and Thinking Machines Lab, *On-Policy Distillation* ([article](https://thinkingmachines.ai/blog/on-policy-distillation/), [maintained recipe](https://tinker-docs.thinkingmachines.ai/cookbook/recipes/distillation/)). Use it to compare fixed teacher data, sparse on-policy rewards, and dense teacher feedback on student rollouts; see `notes/distillation/on-policy-distillation-reading-guide.md`.

@@ -33,5 +33,6 @@ The named kernel **Python (.venv - qualification exam)** may also appear in the 
 
 1. `01_transformer_and_sft.ipynb`: decoder-only Transformer mechanics and response-masked SFT.
 2. `02_deepseek_r1_grpo.ipynb`: DeepSeek-R1-inspired grouped rollouts, verifiable rewards, and GRPO.
+3. `03_on_policy_distillation.ipynb`: Thinking Machines Lab-inspired on-policy distillation and state-distribution coverage.
 
-Both notebooks use the same `.venv` kernel and CPU-only dependency set.
+All notebooks use the same `.venv` kernel and CPU-only dependency set.

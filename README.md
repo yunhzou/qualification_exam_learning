@@ -59,6 +59,8 @@ The reinforcement-learning curriculum is anchored by DeepSeek-R1. Its local PDF 
 
 The corresponding executable module is `notebooks/02_deepseek_r1_grpo.ipynb`. It implements GRPO from first principles on a small verifiable task without TRL or another RL framework.
 
+The distillation module is anchored by Thinking Machines Lab's *On-Policy Distillation* article. Its source notes are in `notes/distillation/on-policy-distillation-reading-guide.md`, and `notebooks/03_on_policy_distillation.ipynb` contrasts teacher-prefix distillation with dense teacher feedback on student-generated prefixes.
+
 On macOS or Linux, create a Python 3.12 virtual environment, install Tectonic using its official installation instructions, and run:
 
 ```bash
