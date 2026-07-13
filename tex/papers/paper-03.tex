@@ -1,6 +1,7 @@
-\subsection{Paper 3: Title}
-\paragraph{Research question.} What problem does the paper address, and why does it matter?
-\paragraph{Method.} Describe the data, objective, algorithm, baselines, and evaluation.
-\paragraph{Main evidence.} Record the results that directly support the central claims.
-\paragraph{Critical assessment.} Identify assumptions, limitations, and alternative explanations.
-\paragraph{Takeaway.} State what this paper changes in your understanding of post-training.
+\subsection{Paper 3: On-Policy Distillation \citep{lu2025onpolicydistillation}}
+\paragraph{Research question.} Ask whether dense teacher feedback on student-generated prefixes can recover teacher behavior more efficiently than offline SFT or sparse-reward RL.
+\paragraph{Method.} Document student rollouts, teacher evaluation on identical prefixes, token-level reverse KL, masking, rollout freshness, and teacher/student support.
+\paragraph{Main evidence.} Record the teacher-recovery and reasoning experiments, including the sample and compute accounting used for comparisons.
+\paragraph{Connection to the position.} Explain how OPD combines on-policy state coverage with dense token-level credit.
+\paragraph{Critical assessment.} Examine reverse-KL mode seeking, teacher reliability off its normal distribution, exploration limits, and dependence on initialization.
+\paragraph{Takeaway.} Complete after reading.
