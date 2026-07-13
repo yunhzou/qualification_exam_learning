@@ -21,7 +21,9 @@ build/
 .DS_Store
 Thumbs.db
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 
 # Papers may be copyrighted; keep local PDFs out of Git by default.
 papers/*.pdf

@@ -53,6 +53,8 @@ Install the lightweight CPU training environment into the existing virtual envir
 
 Open `notebooks/01_transformer_and_sft.ipynb` in a notebook-capable editor and select `.venv` as the kernel. It implements causal multi-head attention and response-masked SFT directly with PyTorch tensors; it does not use Transformers, TRL, datasets, or a training framework.
 
+For the exact VS Code workflow and troubleshooting steps, see `notebooks/README.md`. The repository recommends the official Microsoft Python and Jupyter extensions and points VS Code to the local `.venv` interpreter.
+
 On macOS or Linux, create a Python 3.12 virtual environment, install Tectonic using its official installation instructions, and run:
 
 ```bash
