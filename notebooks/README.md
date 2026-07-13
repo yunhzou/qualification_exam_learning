@@ -28,3 +28,10 @@ The named kernel **Python (.venv - qualification exam)** may also appear in the 
 - If imports fail, rerun the `pip install -r requirements-learning.txt` command using the `.venv` Python shown above. Do not install packages into the Windows Store Python alias.
 - If the kernel is stale after installing dependencies, use **Restart Kernel** and then **Run All**.
 - The notebook is CPU-only. CUDA, Transformers, TRL, and external model downloads are not required.
+
+## Notebook sequence
+
+1. `01_transformer_and_sft.ipynb`: decoder-only Transformer mechanics and response-masked SFT.
+2. `02_deepseek_r1_grpo.ipynb`: DeepSeek-R1-inspired grouped rollouts, verifiable rewards, and GRPO.
+
+Both notebooks use the same `.venv` kernel and CPU-only dependency set.

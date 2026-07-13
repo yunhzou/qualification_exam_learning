@@ -57,6 +57,8 @@ For the exact VS Code workflow and troubleshooting steps, see `notebooks/README.
 
 The reinforcement-learning curriculum is anchored by DeepSeek-R1. Its local PDF manifest is in `papers/README.md`, and the algorithm-focused reading plan is in `notes/rl/deepseek-r1-reading-guide.md`.
 
+The corresponding executable module is `notebooks/02_deepseek_r1_grpo.ipynb`. It implements GRPO from first principles on a small verifiable task without TRL or another RL framework.
+
 On macOS or Linux, create a Python 3.12 virtual environment, install Tectonic using its official installation instructions, and run:
 
 ```bash
