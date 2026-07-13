@@ -55,6 +55,8 @@ Open `notebooks/01_transformer_and_sft.ipynb` in a notebook-capable editor and s
 
 For the exact VS Code workflow and troubleshooting steps, see `notebooks/README.md`. The repository recommends the official Microsoft Python and Jupyter extensions and points VS Code to the local `.venv` interpreter.
 
+The reinforcement-learning curriculum is anchored by DeepSeek-R1. Its local PDF manifest is in `papers/README.md`, and the algorithm-focused reading plan is in `notes/rl/deepseek-r1-reading-guide.md`.
+
 On macOS or Linux, create a Python 3.12 virtual environment, install Tectonic using its official installation instructions, and run:
 
 ```bash
