@@ -14,3 +14,7 @@ This directory stores small, self-contained notebooks for fragmented learning qu
 - Use the repository kernel: **Python (.venv - qualification exam)**.
 
 Side studies are not automatically part of the five-paper report or the ordered curriculum. They may later be promoted into a main notebook when they become necessary prerequisites for a larger module.
+
+## Studies
+
+- `how_tokenization_works.ipynb`: text to subword pieces, token IDs, masks, and embedding tensors.
