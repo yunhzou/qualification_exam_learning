@@ -20,3 +20,4 @@ Side studies are not automatically part of the five-paper report or the ordered 
 - `how_tokenization_works.ipynb`: text to subword pieces, token IDs, masks, and embedding tensors.
 - `tokenizer-design-and-determinism.md`: why tokenizers exist, how their vocabularies are learned, and why normal encoding is deterministic.
 - `exact-token-trajectories-in-rl-and-opd.md`: why RL must retain sampled token IDs and how token-equivalent text can still create a distillation penalty.
+- `flash-attention-memory-and-complexity.md`: how implicit causal masks and tiled exact attention reduce memory traffic without removing dense attention's quadratic arithmetic.
