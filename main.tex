@@ -2,6 +2,8 @@
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{geometry}
@@ -59,8 +61,19 @@ long-horizon agent training requires a deliberate combination of outcome signals
 localized process feedback, and on-policy distribution matching rather than a single
 universal post-training objective.
 
-\section{Paper reviews}
+\section{Transformer foundations: architecture, training, and inference}
 \input{tex/papers/paper-01}
+
+\section{Post-training algorithms}
+\input{tex/post-training/sft}
+
+\subsection{Reinforcement learning: planned section}
+This section will introduce language-model generation as a policy, distinguish rollout
+inference from gradient-based trajectory replay, and then develop outcome rewards,
+advantages, KL control, and GRPO. It is intentionally deferred until the reinforcement
+learning literature and notebook experiments have been studied in detail.
+
+\section{Selected post-training works}
 \input{tex/papers/paper-02}
 \input{tex/papers/paper-03}
 \input{tex/papers/paper-04}

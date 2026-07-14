@@ -1,0 +1,120 @@
+\subsection{Supervised fine-tuning}
+
+Pretraining teaches a model to continue text from a broad corpus. Supervised fine-tuning
+(SFT) changes the conditional behavior by training on demonstrations of desired responses.
+For example, an instruction-tuning record may contain
+\begin{center}
+\begin{tabular}{ll}
+  \toprule
+  Role & Content \\
+  \midrule
+  System & You are a concise assistant. \\
+  User & What is $2+2$? \\
+  Assistant & 4 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+The chat template converts these structured fields into one causal token sequence, for
+example
+\begin{center}
+\texttt{[SYSTEM, You, are, concise, USER, What, is, 2+2, ASSISTANT, 4, EOS]}.
+\end{center}
+The system, user, and assistant delimiters are ordinary conditioning tokens from the
+model's perspective, although their IDs are reserved by the tokenizer.
+
+\subsubsection{Response-only next-token loss}
+
+SFT commonly retains every formatted token as context but calculates loss only when the
+next-token target belongs to the assistant. An abstract alignment is
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  Input at position $t$ & Next-token target & Scored? \\
+  \midrule
+  \texttt{SYSTEM} & first system-content token & no \\
+  final system token & \texttt{USER} & no \\
+  final user token & \texttt{ASSISTANT} & no \\
+  \texttt{ASSISTANT} & \texttt{4} & yes \\
+  \texttt{4} & \texttt{EOS} & yes \\
+  \bottomrule
+\end{tabular}
+\end{center}
+If $m_{b,t}\in\{0,1\}$ is this ownership mask and $M=\sum_{b,t}m_{b,t}$, the objective is
+\begin{equation}
+  \mathcal{L}_{\mathrm{SFT}}
+  =-\frac{1}{M}\sum_{b,t}m_{b,t}
+    \log p_\theta(y_{b,t+1}\mid y_{b,\leq t}).
+\end{equation}
+At a selected position, cross-entropy increases the demonstrated token's logit and
+decreases competing logits. If the model assigns probability 0.4 to the demonstrated
+token, that position contributes $-\log(0.4)\approx0.916$ nats.
+
+As in the Transformer training discussion, $1/M$ normalizes rather than avoids
+computation. Masked prompt positions still pass through every layer. They influence the
+assistant hidden states, and assistant-loss gradients can flow through their
+representations. The mask only removes their direct next-token targets. This distinction
+is essential in multi-turn agent data:
+\begin{center}
+\begin{tabular}{lcc}
+  \toprule
+  Segment & Present in context? & Policy loss? \\
+  \midrule
+  System and user tokens & yes & normally no \\
+  Assistant tokens & yes & yes \\
+  Tool/environment observations & yes & no \\
+  Padding & no useful content & no \\
+  \bottomrule
+\end{tabular}
+\end{center}
+Training on tool output as an assistant target would teach the policy to imitate its
+environment rather than to act after observing it.
+
+\subsubsection{SFT algorithm}
+
+A response-only SFT update is:
+\begin{enumerate}
+  \item sample demonstrations and apply the exact deployment chat template;
+  \item tokenize the complete conversations and record token ownership;
+  \item construct next-token labels, replacing non-assistant targets with an ignore index;
+  \item run one teacher-forced causal forward pass over each complete sequence;
+  \item average cross-entropy over selected assistant targets;
+  \item backpropagate and update the model parameters.
+\end{enumerate}
+The InstructGPT pipeline is a prominent example: demonstrations first produced an SFT
+policy, which was then used to initialize later preference-based RL
+\citep{ouyang2022instructgpt}. This ordering reflects a general role for SFT: behavior
+cloning places useful responses inside the policy's high-probability region before a
+weaker or sparser feedback signal attempts further optimization.
+
+Teacher forcing makes SFT dense and stable. All demonstrated response positions can be
+scored in parallel because the complete response is known and the causal mask prevents
+future leakage. However, deployment conditions on the model's sampled history. If it
+makes an early mistake, it may reach a prefix absent from the demonstration data. This
+train--inference state-distribution difference is exposure bias.
+
+\subsubsection{What SFT controls and what it cannot specify}
+
+The data distribution determines which behavior is cloned. Demonstrations can teach
+format, instruction following, tool syntax, terminology, length, and reasoning style.
+Masking prompt targets keeps long inputs from dominating the objective, but it does not
+make behavior invariant to prompt wording. If every demonstration uses the same system
+prompt, that prompt is a constant condition. Its behavior may be absorbed into the policy
+rather than remain controllable when the prompt is removed or changed.
+
+SFT also observes only selected response paths. A demonstration containing one correct
+answer does not label every alternative answer as semantically wrong, yet token
+cross-entropy moves probability toward the demonstrated next token and away from its
+competitors. Narrow or repetitive data can consequently reduce diversity, solidify
+template artifacts, and cause capability regression outside the fine-tuning domain.
+
+Two averaging conventions further change the effective data weighting. A global token
+mean gives each response token equal weight, so long responses contribute more total
+gradient. Averaging within each example before averaging the batch gives each
+demonstration equal total weight. This choice becomes consequential when short tool calls
+and thousand-token reasoning traces occur in the same corpus.
+
+SFT is therefore best viewed as dense off-policy behavior cloning. It is efficient when
+high-quality target behavior can be demonstrated, but it does not directly train recovery
+on the learner's own mistakes or optimize a non-differentiable outcome. These limitations
+motivate the later comparison with outcome-reward RL, process critics, and on-policy
+distillation.
