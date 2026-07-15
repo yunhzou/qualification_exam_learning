@@ -33,6 +33,86 @@ generated those stored actions. It is a provenance record for the current buffer
 recommendation to generate future trajectories with an inferior model. The current
 trainable policy is $\pi_\theta$.
 
+\paragraph{Where the probability ratio comes from.}
+The ratio is not a second heuristic signal added to the advantage. It follows from asking
+for an expectation under the new policy while holding samples from the old policy. Fix a
+prompt-prefix state $s$ and treat the buffered advantage
+$A_{\mathrm{old}}(s,a)$ as constant. The new policy's expected advantage is
+\begin{align}
+  J_s(\theta)
+    &= \sum_a \pi_\theta(a\mid s)A_{\mathrm{old}}(s,a) \notag\\
+    &= \sum_a \pi_{\mathrm{old}}(a\mid s)
+       \frac{\pi_\theta(a\mid s)}{\pi_{\mathrm{old}}(a\mid s)}
+       A_{\mathrm{old}}(s,a) \notag\\
+    &= \mathbb{E}_{a\sim\pi_{\mathrm{old}}}
+       \left[\rho_\theta(s,a)A_{\mathrm{old}}(s,a)\right].
+  \label{eq:importance-weighted-expected-advantage}
+\end{align}
+This change of sampling distribution is valid where the old policy gives the action
+nonzero probability. The advantage supplies desirability and scale. The ratio
+$\rho_\theta=\pi_\theta/\pi_{\mathrm{old}}$ supplies no new preference; it reweights each
+old-policy sample according to how much probability mass the new policy assigns it.
+
+For example, suppose the old policy chooses a good action with probability $0.25$ and a
+bad action with probability $0.75$, with advantages $+3$ and $-1$. Its expected advantage
+is zero. If the new probabilities are $0.5$ and $0.5$, its expected advantage is one.
+Reweighting old-policy samples gives the same value:
+$0.25(0.5/0.25)(3)+0.75(0.5/0.75)(-1)=1$. Omitting the ratios would still compute the old
+expectation, zero, rather than the new one.
+
+The advantage by itself cannot update the model because it is detached:
+$\nabla_\theta A_{\mathrm{old}}=0$. Parameter dependence enters through
+$\log\pi_\theta$ in Equation~\ref{eq:trajectory-advantage-objective}, or through
+$\rho_\theta$ in Equation~\ref{eq:importance-weighted-expected-advantage}. At
+$\pi_\theta=\pi_{\mathrm{old}}$, these forms have the same first-order policy gradient
+because $\nabla_\theta\rho=\rho\nabla_\theta\log\pi_\theta$. The canonical PPO/GRPO
+surrogate is therefore $\rho A$; it does not require multiplying $\rho A$ by a separate
+cross-entropy term.
+
+For a complete response, exact importance sampling would use the trajectory ratio
+\begin{equation}
+  \frac{\pi_\theta(o\mid q)}{\pi_{\mathrm{old}}(o\mid q)}
+  = \prod_{t=1}^{T}
+    \frac{\pi_\theta(o_t\mid q,o_{<t})}
+         {\pi_{\mathrm{old}}(o_t\mid q,o_{<t})}.
+  \label{eq:complete-trajectory-importance-ratio}
+\end{equation}
+This product becomes high-variance for long responses. PPO-style training instead keeps
+the sampled prefix distribution fixed and constructs a local per-token surrogate with
+$\rho_{i,t}A_i$. GRPO broadcasts its outcome advantage across the trajectory. This is a
+first-order improvement objective around $\pi_{\mathrm{old}}$, not exact reweighting of a
+distant new-policy trajectory distribution; clipping helps enforce that local use
+\citep{schulman2017ppo}.
+
+\paragraph{The same derivation under asynchronous policy lag.}
+Asynchronous RL changes the source of the distribution mismatch, not the importance-
+weighting mathematics. Suppose a rollout worker downloads policy version 10 and starts a
+long tool-using trajectory. While it generates, the learner advances to version 13 using
+other workers' data. When the trajectory arrives, its behavior policy is
+$\pi_{\mathrm{old}}=\pi_{10}$ and its exact sampled tokens and behavior log-probabilities
+must remain attached to it. The learner evaluates those actions under
+$\pi_\theta=\pi_{13}$ and forms
+\begin{equation}
+  \rho_{i,t}
+  = \frac{\pi_{13}(o_{i,t}\mid q,o_{i,<t})}
+         {\pi_{10}(o_{i,t}\mid q,o_{i,<t})}.
+  \label{eq:asynchronous-policy-lag-ratio}
+\end{equation}
+This is Equation~\ref{eq:importance-weighted-expected-advantage} with an older worker as
+the sampling distribution. In synchronous reuse, the policies match during rollout and
+diverge when learner steps reuse the buffer. In asynchronous RL, they may already differ
+when the trajectory reaches the learner because generation and queueing took time.
+
+Importance weighting does not fully rescue arbitrarily stale data. Exact correction of the
+prefix distribution would require the high-variance trajectory product in
+Equation~\ref{eq:complete-trajectory-importance-ratio}; the per-token surrogate only makes
+a local correction on prefixes sampled by the old worker. Large policy lag produces
+extreme ratios, extensive clipping, and little reliable improvement signal. Consequently,
+asynchronous systems must combine ratios with weight refreshes, queue controls, policy-lag
+limits, and filtering or rejection of stale trajectories. Re-tokenizing a response or
+recomputing its denominator with the learner would erase the behavior-policy provenance
+and invalidate the ratio.
+
 At the start of a synchronous rollout iteration, the policies are equal. The system sets
 $\pi_{\mathrm{old}}\leftarrow\pi_\theta$ and samples the buffer. If it evaluates one
 full-batch loss, takes exactly one optimizer step, discards the buffer, and immediately
