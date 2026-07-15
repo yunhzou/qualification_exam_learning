@@ -1,0 +1,53 @@
+\subsection{Training by next-token prediction}
+
+Training begins with complete token sequences. For
+\begin{center}
+  \texttt{[BOS, I, like, tea, EOS]},
+\end{center}
+the input at each position predicts the token immediately to its right. This creates four
+targets: \texttt{I}, \texttt{like}, \texttt{tea}, and \texttt{EOS}. The model factorizes
+the sequence probability as
+\begin{equation}
+  p_\theta(x_1,\ldots,x_T)
+  =\prod_{t=1}^{T}p_\theta(x_t\mid x_{<t}),
+\end{equation}
+and minimizes the mean negative log-probability of the observed next tokens.
+
+All correct tokens are already known during training. We therefore feed the whole
+sequence at once, while the causal mask prevents position $t$ from seeing a future
+target. This procedure is teacher forcing. The resulting logits have shape $[B,T,V]$:
+$B$ independent sequences, $T$ next-token decisions per sequence, and $V$ candidate
+tokens per decision. The token dimension cannot be replaced by the batch dimension,
+because positions inside a sequence have different prefixes and are different supervised
+decisions.
+
+Teacher forcing also avoids running every prefix separately. For a sequence of length
+$T=4096$, separate prefix forwards would process
+\begin{equation}
+  1+2+\cdots+4096=8{,}390{,}656
+\end{equation}
+token positions through token-wise projections and MLPs. One teacher-forced forward pass
+processes 4096 token positions, while the causal attention operation produces all allowed
+prefix interactions together.
+
+A training iteration is therefore:
+\begin{enumerate}
+  \item sample and tokenize a batch, producing IDs of shape $[B,T]$;
+  \item run one causal forward pass, producing logits of shape $[B,T,V]$;
+  \item shift the targets by one position and compute cross-entropy;
+  \item backpropagate through every block;
+  \item use an optimizer to update the parameters.
+\end{enumerate}
+
+If the model has $P$ parameters and processes $N=BT$ tokens, a useful dense-model rule of
+thumb is about $2PN$ FLOPs for the forward pass and about $6PN$ FLOPs for forward plus
+backward. It is an approximation: the explicit $T^2$ attention term, vocabulary head,
+activation recomputation, sparsity, and hardware utilization can all matter.
+
+Training memory has several owners. Parameters require $Ps_w$ bytes and gradients require
+approximately $Ps_g$ bytes. Adam-like optimization keeps two moment estimates, commonly
+in 32-bit precision, adding about $8P$ bytes; mixed-precision training may also retain a
+32-bit master copy of the weights. Activations from the forward pass must remain available
+for backpropagation and grow roughly with $LBTD$, plus any attention matrices that the
+kernel materializes. Activation checkpointing saves memory by discarding selected
+activations and recomputing them during backward.

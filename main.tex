@@ -4,27 +4,22 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{geometry}
 \usepackage{microtype}
 \usepackage[numbers,sort&compress]{natbib}
+\usepackage{tikz}
 \usepackage{xcolor}
 \usepackage[colorlinks=true,allcolors=blue!55!black]{hyperref}
+\usetikzlibrary{arrows.meta,fit,positioning}
 
 \geometry{margin=1in}
 \setlist{nosep}
 \input{tex/report/front_matter/document_metadata}
 
 \begin{document}
-\input{tex/report/front_matter/abstract_and_table_of_contents}
-\input{tex/report/scope/research_scope_guiding_questions_and_source_corpus}
+\maketitle
 \input{tex/report/foundations/transformer_architecture_training_and_inference}
-\input{tex/report/post_training/post_training_algorithms}
-\input{tex/report/selected_sources/selected_post_training_sources}
-\input{tex/report/synthesis/cross_source_synthesis}
-\input{tex/report/experiments/connection_to_repository_experiments}
-\input{tex/report/conclusion/conclusions_and_open_research_questions}
 
 \bibliographystyle{plainnat}
 \bibliography{references}

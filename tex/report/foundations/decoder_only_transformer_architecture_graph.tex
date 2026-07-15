@@ -1,0 +1,47 @@
+\subsection{The complete computation graph}
+
+A decoder-only Transformer maps a sequence of token IDs to one next-token distribution
+at every sequence position. It contains no encoder and no cross-attention. Its repeated
+unit is a causal decoder block: masked self-attention moves information between token
+positions, while an MLP transforms each position independently
+\citep{vaswani2017attention}.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[
+      node distance=5mm,
+      flow/.style={-Latex, semithick},
+      box/.style={draw, rounded corners=2pt, minimum width=8.2cm,
+                  minimum height=7mm, align=center, fill=black!3},
+      operation/.style={box, fill=blue!6},
+      label/.style={font=\small, align=left}
+    ]
+    \node[box] (ids) {token IDs $X\in\mathbb{N}^{B\times T}$};
+    \node[operation, below=of ids] (embed) {token representation + position information};
+    \node[operation, below=8mm of embed] (attn) {pre-norm $\rightarrow$ causal multi-head self-attention $\rightarrow$ residual add};
+    \node[operation, below=of attn] (mlp) {pre-norm $\rightarrow$ token-wise MLP $\rightarrow$ residual add};
+    \node[box, below=8mm of mlp] (finalnorm) {final normalization};
+    \node[operation, below=of finalnorm] (head) {language-model head: $D\rightarrow V$};
+    \node[box, below=of head] (logits) {logits $Z\in\mathbb{R}^{B\times T\times V}$};
+
+    \draw[flow] (ids) -- (embed);
+    \draw[flow] (embed) -- (attn);
+    \draw[flow] (attn) -- (mlp);
+    \draw[flow] (mlp) -- (finalnorm);
+    \draw[flow] (finalnorm) -- (head);
+    \draw[flow] (head) -- (logits);
+
+    \node[draw, dashed, rounded corners=2pt, fit=(attn)(mlp), inner sep=4mm] (block) {};
+    \node[font=\small, fill=white, inner sep=1pt, anchor=west]
+      at ([xshift=3mm]block.north west) {repeat $L$ times};
+  \end{tikzpicture}
+  \caption{The forward path of a decoder-only Transformer. Each decoder block preserves
+  the tensor shape $[B,T,D]$.}
+  \label{fig:decoder-only-transformer}
+\end{figure}
+
+The symbols used throughout this section are: batch size $B$, sequence length $T$, model
+width $D$, number of layers $L$, number of attention heads $A$, vocabulary size $V$, and
+MLP hidden width $F$. Computation is reported as approximate floating-point operations
+(FLOPs), counting one multiply and one add as two FLOPs. Memory formulas state what is
+stored rather than hiding it inside asymptotic notation.

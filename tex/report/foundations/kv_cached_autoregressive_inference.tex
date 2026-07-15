@@ -1,0 +1,47 @@
+\subsection{Inference and the KV cache}
+
+Inference uses the same parameters but does not know future tokens. It must generate one
+token, append it to the sequence, and then generate the next. Efficient inference splits
+this work into two phases.
+
+\paragraph{Prefill.}
+The entire prompt is known, so it is processed in parallel. At every layer, the engine
+retains the key and value vectors produced for every prompt position.
+
+\paragraph{Decode.}
+After sampling a token, the model processes only that new position. Its query reads the
+past keys and values, while its new key and value are appended to the cache. Past hidden
+states do not need to be recomputed because the causal mask guaranteed that they could
+not depend on the newly appended token.
+
+Suppose a prompt has $P=4096$ tokens and the model generates $G=1024$ tokens. Without a
+cache, producing each token reruns its complete available prefix:
+\begin{equation}
+  \sum_{g=0}^{G-1}(P+g)
+  =GP+\frac{G(G-1)}{2}
+  =4{,}718{,}080
+\end{equation}
+token positions through the model. With caching, prefill processes the 4096 prompt tokens
+once. The first output is sampled from the final prefill logit, so only the first
+$G-1$ generated tokens must be processed to obtain the remaining outputs. The total is
+$P+G-1=5119$ token positions, about $921.7$ times fewer token-local evaluations in this
+example.
+
+This compute saving consumes memory. If a layer uses $H_{\mathrm{kv}}$ key/value heads,
+head width $d_h$, current context length $T$, batch size $B$, and $s$ bytes per stored
+number, its cache occupies
+\begin{equation}
+  2BH_{\mathrm{kv}}Td_hs\ \text{bytes}.
+\end{equation}
+The leading 2 is for keys and values. With one sequence, 32 key/value heads, head width
+128, context length 5120, and two-byte values, the cache is 80 MiB per layer and 2.5 GiB
+across 32 layers. Grouped-query and multi-query attention reduce the number of key/value
+heads and therefore reduce this storage and the associated memory traffic
+\citep{shazeer2019fastdecoding}.
+
+KV caching removes repeated projections and MLP work for old tokens. It does not make a
+decode step constant-cost: each new query must still read keys and values from a context
+that grows with every generated token. Training does not normally use this decode-style
+cache because all training tokens are already known and can be processed in parallel,
+while backpropagation needs the intermediate activations rather than only past keys and
+values.

@@ -1,0 +1,20 @@
+\subsection{From hidden states to token probabilities}
+
+After the final decoder block, the model normalizes each hidden vector and applies the
+language-model head:
+\begin{equation}
+  Z=H^{(L)}W_{\mathrm{vocab}},
+  \qquad W_{\mathrm{vocab}}\in\mathbb{R}^{D\times V},
+  \qquad Z\in\mathbb{R}^{B\times T\times V}.
+\end{equation}
+Each row of $Z$ contains one score, or logit, for every possible next token. Softmax turns
+these scores into probabilities. The head contains $DV$ parameters and costs about
+$2BTDV$ FLOPs. Tying $W_{\mathrm{vocab}}$ to the input embedding table avoids storing a
+second $VD$ parameter matrix, but it does not remove this projection's computation.
+
+The logits contain $BTV$ values, which can be large when both the sequence and vocabulary
+are large. Training implementations commonly fuse the projection, softmax, and
+cross-entropy operations or process them in chunks so that unnecessary probability
+tensors are not retained. During autoregressive decoding, only the final position needs a
+vocabulary distribution, reducing the output shape for that step from $[B,T,V]$ to
+$[B,V]$.

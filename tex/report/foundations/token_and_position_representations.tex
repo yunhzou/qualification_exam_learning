@@ -1,0 +1,18 @@
+\subsection{From token IDs to hidden vectors}
+
+The tokenizer produces integers, not semantic vectors. A learned embedding table
+$E\in\mathbb{R}^{V\times D}$ selects one $D$-dimensional row for every input ID:
+\begin{equation}
+  H^{(0)}_{b,t}=E[X_{b,t}]+P_t,
+  \qquad H^{(0)}\in\mathbb{R}^{B\times T\times D}.
+\end{equation}
+Here $P_t$ stands for position information. Learned absolute embeddings add a vector as
+written above. Rotary position embeddings instead rotate query and key coordinates
+inside attention. Either construction must break the otherwise position-free symmetry of
+self-attention: the model needs to distinguish ``dog bites man'' from ``man bites dog.''
+
+The token table contains $VD$ parameters and occupies $VDs$ bytes when each stored value
+uses $s$ bytes. The output activation contains $BTD$ values. Embedding lookup itself is
+cheap compared with matrix multiplication; the important costs are the parameter table
+and the activation passed into the first block. Some models tie this table to the final
+language-model head, avoiding a second $VD$ parameter matrix.

@@ -1,0 +1,33 @@
+\subsection{The rest of a decoder block}
+
+A common pre-normalized block is
+\begin{align}
+  U &= H+\operatorname{Attention}(\operatorname{Norm}(H)),\\
+  H^{\mathrm{next}} &= U+\operatorname{MLP}(\operatorname{Norm}(U)).
+\end{align}
+Normalization controls the scale entering each learned sublayer. The residual additions
+preserve a direct identity path, so a deep stack can modify a representation without
+having to reconstruct it at every layer. These operations are linear in $BTD$ and are
+usually small compared with the matrix multiplications.
+
+The MLP acts independently at every token position. In its simplest form,
+\begin{equation}
+  \operatorname{MLP}(u)=W_2\,\sigma(W_1u),
+  \qquad W_1\in\mathbb{R}^{F\times D},\quad
+  W_2\in\mathbb{R}^{D\times F}.
+\end{equation}
+It contains approximately $2DF$ parameters and costs $4BTDF$ FLOPs. If $F=4D$, this is
+$8D^2$ parameters and $16BTD^2$ FLOPs. The MLP often performs more arithmetic than
+attention projections even though attention is the component that mixes information
+across positions. Gated MLP variants use a third projection and therefore change these
+constants, but not the basic token-wise structure.
+
+Combining standard attention with a two-matrix MLP gives, per block,
+\begin{align}
+  \operatorname{parameters} &\approx 4D^2+2DF,\\
+  \operatorname{forward\ FLOPs} &\approx 8BTD^2+4BT^2D+4BTDF.
+\end{align}
+With $F=4D$, these become approximately $12D^2$ parameters and
+$24BTD^2+4BT^2D$ forward FLOPs. This decomposition is more informative than a single
+model-wide number: increasing width mainly enlarges learned projections, while increasing
+context length eventually exposes the quadratic attention term.

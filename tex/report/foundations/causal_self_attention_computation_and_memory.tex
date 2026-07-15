@@ -1,0 +1,33 @@
+\subsection{Causal self-attention}
+
+Attention lets each position retrieve information from earlier positions. From an input
+$H\in\mathbb{R}^{B\times T\times D}$, the layer first forms queries, keys, and values:
+\begin{equation}
+  Q=HW_Q,\qquad K=HW_K,\qquad V_h=HW_V.
+\end{equation}
+With $A$ heads and head width $d_h=D/A$, each tensor is viewed as
+$[B,A,T,d_h]$. For one head,
+\begin{equation}
+  A=\operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_h}}+M\right),
+  \qquad C=AV_h,
+\end{equation}
+where $M_{ij}=-\infty$ when $j>i$. The causal mask is what makes the representation at
+position $i$ a function only of tokens $x_{\leq i}$. Contexts from all heads are
+concatenated and passed through an output projection.
+
+For standard multi-head attention, the query, key, value, and output matrices contain
+approximately $4D^2$ parameters. Their projections cost approximately
+$8BTD^2$ FLOPs. Computing $QK^\top$ and then $AV_h$ adds approximately
+$4BT^2D$ FLOPs. The first term is linear in sequence length; the pairwise attention term
+is quadratic:
+\begin{equation}
+  \operatorname{FLOPs}_{\mathrm{attention}}
+  \approx 8BTD^2+4BT^2D.
+\end{equation}
+
+The same split appears in memory. Queries, keys, values, and their outputs require
+$O(BTD)$ values. A straightforward implementation also materializes attention weights of
+shape $[B,A,T,T]$. This quadratic tensor can dominate activation memory at long context
+lengths. FlashAttention changes the execution order so the complete $T\times T$ matrix
+need not be stored; it reduces memory traffic and activation storage, but the exact dense
+attention calculation still has quadratic arithmetic in $T$.
