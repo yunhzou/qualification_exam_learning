@@ -1,0 +1,82 @@
+\subsection{Trajectory advantages, rollout buffers, and policy versions}
+
+The reward in outcome-based language-model RL normally evaluates a complete sampled
+response, not an individual token. For one prompt, GRPO samples a group of trajectories,
+scores each trajectory, and normalizes its reward relative to the group. The resulting
+advantage $A_i$ is therefore one scalar attached to trajectory $i$. It says whether that
+response was better or worse than the other responses to the same prompt; it does not say
+which token caused the outcome \citep{guo2025deepseekr1}.
+
+To see how this scalar changes the model, first omit clipping and KL control. A simplified
+trajectory objective is
+\begin{equation}
+  J_i(\theta)
+  = A_i\frac{1}{T_i}\sum_{t=1}^{T_i}
+    \log \pi_\theta(o_{i,t}\mid q,o_{i,<t}),
+  \qquad \mathcal{L}_i=-J_i.
+  \label{eq:trajectory-advantage-objective}
+\end{equation}
+The sampled trajectory is replayed through the trainable model with teacher forcing to
+recover the log-probability of each sampled action. The trajectory advantage is broadcast
+over those actions. If $A_i>0$, minimizing the negative objective increases their
+log-probabilities; if $A_i<0$, it decreases them. The batch reduction produces one scalar
+loss, and backpropagation adds all token contributions in the shared Transformer
+parameters. Thus a successful response reinforces every trainable action in that response,
+including actions that may not have caused success. This is outcome-level rather than
+process-level credit assignment.
+
+\paragraph{What the rollout buffer records.}
+Generation, reward evaluation, and optimization are separate phases. The generated token
+IDs, behavior-policy log-probabilities, masks, rewards, and advantages are held in a
+short-lived rollout buffer. The notation $\pi_{\mathrm{old}}$ identifies the policy that
+generated those stored actions. It is a provenance record for the current buffer, not a
+recommendation to generate future trajectories with an inferior model. The current
+trainable policy is $\pi_\theta$.
+
+At the start of a synchronous rollout iteration, the policies are equal. The system sets
+$\pi_{\mathrm{old}}\leftarrow\pi_\theta$ and samples the buffer. If it evaluates one
+full-batch loss, takes exactly one optimizer step, discards the buffer, and immediately
+resamples, then the importance ratio
+\begin{equation}
+  \rho_{i,t}(\theta)
+  = \frac{\pi_\theta(o_{i,t}\mid q,o_{i,<t})}
+         {\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,<t})}
+  \label{eq:rollout-buffer-importance-ratio}
+\end{equation}
+equals one when the loss is evaluated. Clipping is inactive in this schedule. The gradient
+is nevertheless nonzero because the old probability is detached whereas the current
+probability is differentiable: at $\rho=1$,
+$\nabla_\theta(\rho A_i)=A_i\nabla_\theta\log\pi_\theta$.
+
+\paragraph{Why reuse a buffer at all?}
+Reuse is an optional compute tradeoff, not a requirement of the advantage calculation.
+Autoregressive LLM rollout generation requires a sequential forward pass for every token
+and may also wait for tools, environments, or verifiers. Once a system has paid that cost,
+it may perform several minibatch steps or optimization epochs on the same buffer. Several
+small steps can move the policy farther than one conservative step without attempting one
+large update from a noisy Monte Carlo batch. Even a single pass over a large buffer may use
+many optimizer steps: after the first minibatch, $\pi_\theta$ has changed, while every
+remaining minibatch still contains actions from $\pi_{\mathrm{old}}$.
+
+This reuse creates the mismatch that the PPO-style ratio and clipping control
+\citep{schulman2017ppo}. It does not create new information. Excessive reuse can overfit the
+sampled trajectories, make their advantages stale, and move many ratios into the clipped
+region where they supply no further improvement signal. When fresh rollout generation is
+affordable, one update followed by immediate resampling is the cleaner on-policy choice.
+At the end of either schedule, the system discards the short-lived buffer, copies the
+updated $\pi_\theta$ into $\pi_{\mathrm{old}}$, and generates the next batch with the
+improved model. Asynchronous execution adds another source of mismatch because rollout
+workers may lag behind the learner, but such lag is not the only reason the two policy
+versions can differ.
+
+\paragraph{Why this is not DQN experience replay.}
+Both designs store experience and can reuse it, but their admissible data ages and
+purposes differ. DQN keeps a long-lived replay memory containing transitions from many
+behavior-policy versions. Off-policy Q-learning permits broad reuse, while randomized
+sampling reduces the strong temporal correlation between consecutive environment
+transitions \citep{mnih2015dqn}. A PPO or GRPO rollout buffer is normally restricted to
+the current or very recent behavior policy and discarded after limited optimization. Its
+purpose is to amortize expensive data collection while remaining approximately on-policy,
+not to construct a persistent historical memory or directly prevent catastrophic
+forgetting. Calling both objects ``a replay buffer'' hides the policy-freshness constraint
+that motivates importance ratios and clipping in PPO-style training.

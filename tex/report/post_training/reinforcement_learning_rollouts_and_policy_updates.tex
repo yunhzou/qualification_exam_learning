@@ -1,7 +1,9 @@
 \section{Reinforcement learning}
 This section begins with the unit that an agentic RL system actually trains. The later
-algorithmic development will introduce language-model generation as a policy, distinguish
-rollout inference from gradient-based trajectory replay, and then develop outcome rewards,
-advantages, KL control, critics, PPO, and GRPO.
+algorithmic development introduces language-model generation as a policy, follows a
+trajectory-level advantage into the token gradients, and distinguishes short-lived rollout
+buffers from long-lived experience replay. Later modules will develop critics and
+process-level credit assignment.
 
 \input{tex/report/post_training/agentic_rl_trace_boundaries_and_token_fidelity}
+\input{tex/report/post_training/grpo_trajectory_advantages_and_rollout_buffers}
