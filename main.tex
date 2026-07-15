@@ -14,112 +14,17 @@
 
 \geometry{margin=1in}
 \setlist{nosep}
-\title{From Sparse Outcomes to Dense Process Feedback:\\
-LLM Post-Training for Reasoning and Long-Horizon Agents}
-\author{Yunhzou}
-\date{\today}
+\input{tex/report/front_matter/document_metadata}
 
 \begin{document}
-\maketitle
-
-\begin{abstract}
-This position paper studies how supervision and credit assignment shape large language
-model post-training, from the Transformer architecture and outcome-reward reinforcement
-learning to process critics, on-policy distillation, and continual self-distillation. The
-central position, evidence, qualifications, and conclusions will be developed after the
-five selected works have been read in depth.
-\end{abstract}
-
-\tableofcontents
-
-\section{Scope and guiding questions}
-\subsection{Research area}
-Define LLM post-training for reasoning and long-horizon agents, emphasizing the problem
-of assigning useful learning signals to decisions within autoregressive trajectories.
-
-\subsection{Guiding questions}
-\begin{enumerate}
-  \item What behavior can SFT, outcome-reward RL, process supervision, and distillation
-        each teach or preserve?
-  \item When does terminal reward become insufficient for long-horizon credit assignment?
-  \item How should a process reward model or critic evaluate intermediate states and actions?
-  \item Why does training on the student's state distribution change generalization and recovery?
-  \item Can on-policy self-distillation support continual improvement without catastrophic forgetting?
-\end{enumerate}
-
-\subsection{Selected works}
-The five primary works are \emph{Attention Is All You Need}
-\citep{vaswani2017attention}, \emph{DeepSeek-R1} \citep{guo2025deepseekr1},
-\emph{On-Policy Distillation} \citep{lu2025onpolicydistillation},
-\emph{AgentPRM} \citep{xi2025agentprm}, and \emph{Self-Distillation Enables
-Continual Learning} \citep{shenfeld2026selfdistillation}. Technical reports and
-research articles count as primary works for this working selection.
-
-\subsection{Working position}
-State the paper's eventual thesis here. A candidate structure is that increasingly
-long-horizon agent training requires a deliberate combination of outcome signals,
-localized process feedback, and on-policy distribution matching rather than a single
-universal post-training objective.
-
-\section{Transformer foundations: architecture, training, and inference}
-\input{tex/papers/paper-01}
-
-\section{Post-training algorithms}
-\input{tex/post-training/sft}
-
-\subsection{Reinforcement learning: planned section}
-This section will introduce language-model generation as a policy, distinguish rollout
-inference from gradient-based trajectory replay, and then develop outcome rewards,
-advantages, KL control, and GRPO. It is intentionally deferred until the reinforcement
-learning literature and notebook experiments have been studied in detail.
-
-\section{Selected post-training works}
-\input{tex/papers/paper-02}
-\input{tex/papers/paper-03}
-\input{tex/papers/paper-04}
-\input{tex/papers/paper-05}
-
-\section{Cross-paper synthesis}
-\subsection{Supervision and credit-assignment spectrum}
-Compare next-token supervision, terminal outcome rewards, step-level reward/value
-estimates, teacher token distributions, and privileged-context self-distillation.
-
-\subsection{Training distributions and support}
-Compare teacher-forced, offline, and on-policy state distributions. Analyze exposure
-bias, exploration, support mismatch, and policy lag.
-
-\subsection{Long-horizon agents}
-Compare critic-free grouped policy optimization with process reward models and learned
-value estimates. Separate step correctness, progress, promise of eventual success, and
-terminal task completion.
-
-\subsection{Continual learning and retention}
-Analyze whether distillation can transfer or recover skills across post-training stages
-without collapsing prior capabilities. Separate empirical evidence from hypotheses about
-automated continual post-training.
-
-\subsection{Supporting systems case studies}
-Use the GLM-5 technical report and GLM-5.2 research article as examples of asynchronous
-agent RL and cross-stage on-policy distillation \citep{glm5team2026,glm52team2026}.
-Use Composer 2.5 as an example of combining trajectory-level RL with localized textual
-feedback and an on-policy KL loss at a problematic turn \citep{cursor2026composer25}.
-Use \emph{Let's Verify Step by Step} as foundational context for process versus outcome
-supervision and PRM evaluation \citep{lightman2023verify}.
-
-\subsection{Evidence and open questions}
-Distinguish claims supported by controlled experiments from system-level correlations,
-implementation reports, and personal hypotheses. Record incompatible evaluation and
-compute-accounting assumptions before comparing results.
-
-\section{Connection to experiments}
-Relate the literature to the post-training experiments in this repository, including
-which findings reproduced, which assumptions did not transfer, and what should be tested
-next. Planned experiments include outcome-only GRPO, process/value critics, on-policy
-distillation, localized privileged feedback, and cross-stage retention tests.
-
-\section{Conclusion}
-Summarize the current understanding of LLM post-training and the most important unresolved
-research questions.
+\input{tex/report/front_matter/abstract_and_table_of_contents}
+\input{tex/report/scope/research_scope_guiding_questions_and_source_corpus}
+\input{tex/report/foundations/transformer_architecture_training_and_inference}
+\input{tex/report/post_training/post_training_algorithms}
+\input{tex/report/selected_sources/selected_post_training_sources}
+\input{tex/report/synthesis/cross_source_synthesis}
+\input{tex/report/experiments/connection_to_repository_experiments}
+\input{tex/report/conclusion/conclusions_and_open_research_questions}
 
 \bibliographystyle{plainnat}
 \bibliography{references}

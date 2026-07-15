@@ -1,0 +1,42 @@
+\section{Scope and guiding questions}
+
+\subsection{Research area}
+Define LLM post-training for reasoning and long-horizon agents, emphasizing the problem
+of assigning useful learning signals to decisions within autoregressive trajectories.
+
+\subsection{Guiding questions}
+\begin{enumerate}
+  \item What behavior can SFT, outcome-reward RL, process supervision, and distillation
+        each teach or preserve?
+  \item When does terminal reward become insufficient for long-horizon credit assignment?
+  \item How should a process reward model or critic evaluate intermediate states and actions?
+  \item Why does training on the student's state distribution change generalization and recovery?
+  \item Can on-policy self-distillation support continual improvement without catastrophic forgetting?
+\end{enumerate}
+
+\subsection{Core source corpus}
+The working corpus contains ten central sources:
+\begin{enumerate}
+  \item \emph{Attention Is All You Need} \citep{vaswani2017attention};
+  \item \emph{DeepSeek-R1} \citep{guo2025deepseekr1};
+  \item \emph{On-Policy Distillation} \citep{lu2025onpolicydistillation};
+  \item \emph{AgentPRM} \citep{xi2025agentprm};
+  \item \emph{Self-Distillation Enables Continual Learning}
+        \citep{shenfeld2026selfdistillation};
+  \item \emph{Let's Verify Step by Step} \citep{lightman2023verify};
+  \item the \emph{GLM-5} technical report \citep{glm5team2026};
+  \item the \emph{GLM-5.2} research article \citep{glm52team2026};
+  \item the \emph{Composer 2 Technical Report} \citep{cursor2026composer2}; and
+  \item the \emph{Composer 2.5} research article \citep{cursor2026composer25}.
+\end{enumerate}
+These source types are not treated as interchangeable evidence. Peer review, disclosure
+depth, reproducibility, ablations, benchmark independence, and commercial incentives
+will be evaluated explicitly. Nevertheless, technical reports are primary evidence for
+important systems that are not yet described by conventional conference papers, so they
+belong in the central corpus rather than in a footnote or an auxiliary reading list.
+
+\subsection{Working position}
+State the paper's eventual thesis here. A candidate structure is that increasingly
+long-horizon agent training requires a deliberate combination of outcome signals,
+localized process feedback, learned critics, and on-policy distribution matching rather
+than a single universal post-training objective.

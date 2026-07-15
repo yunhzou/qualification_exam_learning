@@ -3,7 +3,7 @@
 This repository is a combined workspace for two connected goals:
 
 1. Learn how large language models are trained, with an emphasis on post-training techniques such as supervised fine-tuning, preference optimization, reinforcement learning, evaluation, and alignment.
-2. Prepare for the PhD qualification exam by selecting 5-10 papers with the supervisor (currently targeting five), recording a critical understanding of each paper, synthesizing their shared themes, and preparing both a written report and an oral presentation.
+2. Prepare for the PhD qualification exam using a ten-source working corpus, recording a critical understanding of each source, synthesizing their shared themes, and preparing both a written report and an oral presentation. The corpus includes papers, preprints, technical reports, and first-party research articles; the supervisor can confirm which 5-10 satisfy the formal selection requirement.
 
 Experiments and reading notes should inform the exam deliverables, while the exam's five-paper structure provides a focused path through the post-training literature.
 
@@ -16,7 +16,9 @@ The concrete milestones and handbook-based exam constraints are recorded in [GOA
 - `GOALS.md`: learning goals, deliverables, and qualification-exam requirements.
 - `learning_list.md`: the evolving topic map for the LLM training curriculum.
 - `notebooks/`: algorithm-focused, executable learning modules.
-- `tex/papers/`: structured notes for each of the five papers.
+- `tex/report/`: modular report source, organized by scope, foundations, algorithms, selected sources, synthesis, experiments, and conclusions.
+- `tex/presentation/`: modular presentation metadata and one descriptively named file per frame.
+- `tex/README.md`: source-tree conventions and instructions for adding a new writing module.
 - `references.bib`: shared bibliography for the report and presentation.
 - `papers/`: local paper PDFs (ignored by Git to avoid redistributing copyrighted files).
 - `notes/`: working reading and learning notes.

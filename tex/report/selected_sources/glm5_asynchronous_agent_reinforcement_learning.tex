@@ -1,0 +1,16 @@
+\subsection{GLM-5: asynchronous agent reinforcement learning
+\citep{glm5team2026}}
+\paragraph{Source type.} First-party technical report and arXiv preprint.
+\paragraph{Research question.} Ask how generation and training can be decoupled without
+allowing asynchronous, long-running agent rollouts to become too stale for stable policy updates.
+\paragraph{Method.} Document the slime infrastructure, asynchronous rollout and training
+workers, policy-lag controls, importance weighting or filtering, long-horizon environments,
+and the interaction between the systems design and the RL estimator.
+\paragraph{Main evidence.} Record throughput, scaling, ablation, benchmark, and model-quality
+evidence separately; identify which comparisons isolate the asynchronous method itself.
+\paragraph{Connection to the position.} Show that credit assignment and data freshness
+become systems problems as well as objective-design problems in long-horizon agent RL.
+\paragraph{Critical assessment.} Examine reproducibility, undisclosed data, policy staleness,
+hardware dependence, benchmark contamination, and whether end-model results identify the
+contribution of any individual algorithmic component.
+\paragraph{Takeaway.} Complete after reading.

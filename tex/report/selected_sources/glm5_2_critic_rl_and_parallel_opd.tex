@@ -1,0 +1,16 @@
+\subsection{GLM-5.2: critic-based RL and parallel OPD for long-horizon tasks
+\citep{glm52team2026}}
+\paragraph{Source type.} First-party research article.
+\paragraph{Research question.} Ask how a post-training system should handle compacted,
+variable-length long-horizon trajectories and combine specialized expert behaviors.
+\paragraph{Method.} Document the move from group-relative optimization to critic-based PPO
+with token-level advantages, training on compacted sub-trajectories, online anti-hacking,
+and parallel on-policy distillation from multiple expert models.
+\paragraph{Main evidence.} Record benchmark results, efficiency claims, critic or OPD
+ablations, and the stated two-day multi-expert OPD run as distinct categories of evidence.
+\paragraph{Connection to the position.} Provide a production-scale case in which learned
+critics and OPD are presented as responses to long-horizon credit assignment and heterogeneous tasks.
+\paragraph{Critical assessment.} Treat first-party benchmark claims cautiously; examine
+critic-target construction, compaction boundaries, anti-hack false positives, expert conflicts,
+and the absence or presence of controlled comparisons.
+\paragraph{Takeaway.} Complete after reading.
