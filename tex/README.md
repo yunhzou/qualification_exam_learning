@@ -11,7 +11,8 @@ The report is organized like a small codebase. `main.tex` is the composition roo
 - `report/foundations/`: a thin Transformer composition module plus separate files for
   the architecture graph, representations, attention, block components, training, and
   KV-cached inference.
-- `report/post_training/`: algorithm explanations that cut across individual sources.
+- `report/post_training/`: thin algorithm composition files and one descriptively named
+  module per concept. The active draft currently includes SFT only; RL remains deferred.
 - `report/selected_sources/`: one file per paper, technical report, or research article, plus a small composition file.
 - `report/synthesis/`: comparisons organized by research question rather than by source.
 - `report/experiments/`: connections between claims in the literature and repository experiments.

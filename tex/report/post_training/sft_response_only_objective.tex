@@ -1,0 +1,31 @@
+\subsection{The response-only objective}
+
+Let $y_{b,0},\ldots,y_{b,T}$ be a formatted sequence and let
+$m_{b,t}\in\{0,1\}$ indicate whether target token $y_{b,t+1}$ belongs to a supervised
+assistant span. With $M=\sum_{b,t}m_{b,t}$, response-only SFT minimizes
+\begin{equation}
+  \mathcal{L}_{\mathrm{SFT}}(\theta)
+  =-\frac{1}{M}\sum_{b=1}^{B}\sum_{t=0}^{T-1}
+    m_{b,t}\log p_\theta(y_{b,t+1}\mid y_{b,\leq t}).
+  \label{eq:sft-loss}
+\end{equation}
+This is ordinary next-token cross-entropy with a target-selection mask. If the model
+assigns probability $0.4$ to one demonstrated token, that position contributes
+$-\log(0.4)\approx0.916$ nats. Lowering the loss moves probability toward observed
+tokens and away from their competitors at the same prefix.
+
+The denominator $M$ normalizes the gradient scale; it does not save a Transformer
+forward. All $BT$ input positions still pass through the blocks. The mask decides which
+positions directly contribute to the scalar loss after their logits have been computed.
+
+Equation~\ref{eq:sft-loss} gives every supervised token equal weight, so a response with
+1000 tokens contributes roughly ten times as much total loss as one with 100 tokens. An
+alternative first averages within each example and then averages examples:
+\begin{equation}
+  \mathcal{L}_{\mathrm{example}}
+  =-\frac{1}{B}\sum_{b=1}^{B}\frac{1}{M_b}
+    \sum_{t=0}^{T-1}m_{b,t}
+    \log p_\theta(y_{b,t+1}\mid y_{b,\leq t}),
+\end{equation}
+where $M_b=\sum_t m_{b,t}$. Neither reduction is universally correct; they express
+different choices about whether tokens or demonstrations receive equal total weight.

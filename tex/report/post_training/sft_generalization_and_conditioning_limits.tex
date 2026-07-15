@@ -1,0 +1,37 @@
+\subsection{What the demonstration distribution can teach}
+
+SFT can teach instruction following, answer format, tool syntax, terminology, length, and
+reasoning style when these behaviors are represented consistently in the demonstrations.
+Its generalization is constrained by what varies in that dataset.
+
+\paragraph{System prompts as conditions.}
+Including a system prompt in the input does not guarantee that the learned behavior
+remains controllable through that prompt. If exactly the same system message appears in
+every example, it is a constant rather than an informative variable. The data provide no
+contrast showing which behavior should change when the message changes, so repeated SFT
+can absorb its instruction into the model parameters. There is no universal iteration at
+which this happens, and a larger training run does not solve the identifiability problem.
+Prompt control is better tested and taught by varying system instructions, including
+contrasting instructions for comparable user inputs, sometimes omitting generic prompts,
+and evaluating behavior when the prompt is changed or removed.
+
+\paragraph{One demonstrated path.}
+A demonstration selects one valid token path. Cross-entropy increases that path's local
+probability even when other continuations would also be correct. Repetitive data can
+therefore reduce diversity, reinforce template artifacts, and shift capability away from
+domains absent from the mixture. Low training loss establishes imitation of the training
+set, not generalization.
+
+\paragraph{Teacher-forced prefixes.}
+During SFT, the model predicts each response token after the correct demonstrated prefix.
+During inference, described in Section~\ref{sec:transformer-inference}, each new token is
+conditioned on the model's own earlier samples. An early mistake can lead to a prefix that
+never appeared in the SFT data. This exposure-bias gap explains why dense demonstration
+learning can produce strong initial behavior without directly teaching recovery from the
+model's own errors.
+
+SFT is therefore a strong initialization method when desired behavior can be demonstrated
+clearly. It does not by itself identify every valid alternative, evaluate terminal
+outcomes, or supply credit for actions taken on the model's own trajectory. Those are
+separate problems for the later sections on reinforcement learning, critics, and
+on-policy distillation.

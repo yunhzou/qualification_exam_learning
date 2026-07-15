@@ -1,0 +1,33 @@
+\subsection{Training algorithm and resource cost}
+
+For full-parameter response-only SFT, one optimizer step is:
+\begin{enumerate}
+  \item sample demonstrations and apply the exact deployment chat template;
+  \item tokenize, truncate or pack examples, and construct attention masks;
+  \item shift token IDs into next-token targets and mask unwanted roles and padding;
+  \item run one teacher-forced causal forward pass over the complete sequences;
+  \item reduce cross-entropy over the selected assistant targets;
+  \item backpropagate, optionally clip gradients, and update the parameters;
+  \item periodically evaluate held-out behavior and save resumable checkpoints.
+\end{enumerate}
+
+Teacher forcing has the same meaning as in Section~\ref{sec:transformer-training}. Every
+demonstrated response token is known, so all response positions can be scored in parallel
+without revealing future tokens. SFT does not require autoregressive decoding inside the
+training step.
+
+Let $P$ be the parameter count and let $N=BT$ be the number of token positions processed
+in a dense batch. The same rough accounting applies as in ordinary language-model
+training: about $2PN$ FLOPs for a dense forward and $6PN$ for forward plus backward,
+before the explicit quadratic attention term and systems overhead. Replacing $BT$ with
+the smaller supervised-token count $M$ would be incorrect. Prompt tokens are unscored but
+still influence response activations and gradients.
+
+The persistent training state is also unchanged in kind: model parameters, gradients,
+optimizer moments, and possibly master-precision weights. Runtime storage includes token
+IDs, labels, and masks of shape $[B,T]$, plus layer activations and any materialized
+attention or vocabulary tensors. A weights-only checkpoint is insufficient for exact
+resumption because optimizer, scheduler, precision-scaler, and random-number-generator
+state also affect the next update. Parameter-efficient SFT can reduce gradient and
+optimizer storage for frozen weights, but it does not remove the forward activations
+needed to train the inserted parameters.

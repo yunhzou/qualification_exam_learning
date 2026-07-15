@@ -1,0 +1,16 @@
+\subsection{SFT as behavior cloning}
+
+A pretrained model already assigns probabilities to token sequences. SFT presents it with
+curated pairs of conditions and desired continuations, then increases the likelihood of
+those demonstrated continuations. An instruction example may contain a system message, a
+user request, and an assistant response. A code example may contain a repository state
+and the edit an expert would make. In both cases, the model is learning
+\begin{equation}
+  p_\theta(\text{demonstrated response}\mid\text{provided context}).
+\end{equation}
+
+Calling SFT behavior cloning makes its role explicit. It does not discover whether an
+outcome is correct; it copies behavior selected by the dataset constructor. Data quality,
+task mixture, response style, and filtering therefore define the target policy as much as
+the optimizer does. In the InstructGPT pipeline, this supervised policy also provided the
+initial behavior for later preference optimization \citep{ouyang2022instructgpt}.
