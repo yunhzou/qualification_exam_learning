@@ -57,7 +57,7 @@ Install the lightweight CPU training environment into the existing virtual envir
 .\.venv\Scripts\python.exe -m pip install -r requirements-learning.txt
 ```
 
-Open `notebooks/01_transformer_and_sft.ipynb` in a notebook-capable editor and select `.venv` as the kernel. It implements causal multi-head attention and response-masked SFT directly with PyTorch tensors; it does not use Transformers, TRL, datasets, or a training framework.
+Open `notebooks/01_transformer_and_sft.ipynb` in a notebook-capable editor and select `.venv` as the kernel. It implements causal multi-head attention, response-masked SFT, and prefill plus per-layer KV-cached decoding directly with PyTorch tensors; it does not use Transformers, TRL, datasets, or a training framework.
 
 For the exact VS Code workflow and troubleshooting steps, see `notebooks/README.md`. The repository recommends the official Microsoft Python and Jupyter extensions and points VS Code to the local `.venv` interpreter.
 

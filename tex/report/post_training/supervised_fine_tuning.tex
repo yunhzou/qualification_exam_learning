@@ -61,13 +61,18 @@ is essential in multi-turn agent data:
   \midrule
   System and user tokens & yes & normally no \\
   Assistant tokens & yes & yes \\
-  Tool/environment observations & yes & no \\
+  Tool/environment observations & yes & normally no policy loss \\
   Padding & no useful content & no \\
   \bottomrule
 \end{tabular}
 \end{center}
 Training on tool output as an assistant target would teach the policy to imitate its
-environment rather than to act after observing it.
+environment rather than to act after observing it. This does not imply that observations
+can never be supervised. ECHO, for example, keeps the roles separate while adding an
+auxiliary next-token loss on selected terminal-response tokens alongside the policy loss
+on assistant actions \citep{shrivastava2026echo}. Such a loss is a deliberate
+environment-modeling objective, not ordinary response-only SFT, and noisy, private,
+transient, or irrelevant tool outputs may be poor prediction targets.
 
 \subsubsection{SFT algorithm}
 

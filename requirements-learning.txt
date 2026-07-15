@@ -1,4 +1,6 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 ipykernel==7.3.0
+nbclient==0.11.0
+nbformat==5.10.4
 numpy==2.4.2
 torch==2.13.0+cpu
