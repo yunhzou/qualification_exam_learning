@@ -43,6 +43,10 @@ Generated PDFs are written to `build/main.pdf` and `build/presentation.pdf`. Com
 
 GitHub Actions runs the same build for every push and pull request and uploads both PDFs as a workflow artifact.
 
+## Required verification workflow
+
+Every repository change must finish by running `.\.venv\Scripts\python.exe scripts/build.py all`. This refreshes both local PDFs even when the change is primarily a notebook, script, or note. Changes to LaTeX or bibliography content also require a visual inspection of the affected rendered pages. These requirements are recorded in `AGENTS.md` so coding assistants apply them automatically in future sessions.
+
 ## Learning notebooks
 
 Install the lightweight CPU training environment into the existing virtual environment:
