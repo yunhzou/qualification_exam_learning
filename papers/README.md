@@ -12,6 +12,11 @@ The GLM-5.2 and Composer 2.5 sources are first-party web research articles rathe
 standalone PDFs: [GLM-5.2](https://z.ai/blog/glm-5.2) and
 [Composer 2.5](https://cursor.com/blog/composer-2-5).
 
+`composer2-technical-report.pdf` is retained as optional background on asynchronous RL,
+self-summarization, and training infrastructure. It is not a core on-policy-distillation
+source; Composer 2.5 is the relevant source for targeted textual feedback with an
+on-policy KL objective.
+
 To retrieve the current anchored version:
 
 ```powershell

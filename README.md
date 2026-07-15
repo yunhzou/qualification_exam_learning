@@ -3,7 +3,7 @@
 This repository is a combined workspace for two connected goals:
 
 1. Learn how large language models are trained, with an emphasis on post-training techniques such as supervised fine-tuning, preference optimization, reinforcement learning, evaluation, and alignment.
-2. Prepare for the PhD qualification exam using a ten-source working corpus, recording a critical understanding of each source, synthesizing their shared themes, and preparing both a written report and an oral presentation. The corpus includes papers, preprints, technical reports, and first-party research articles; the supervisor can confirm which 5-10 satisfy the formal selection requirement.
+2. Prepare for the PhD qualification exam using a nine-source working corpus, recording a critical understanding of each source, synthesizing their shared themes, and preparing both a written report and an oral presentation. The corpus includes papers, preprints, technical reports, and first-party research articles; the supervisor can confirm which 5-10 satisfy the formal selection requirement.
 
 Experiments and reading notes should inform the exam deliverables, while the exam's five-paper structure provides a focused path through the post-training literature.
 

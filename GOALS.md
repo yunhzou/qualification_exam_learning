@@ -4,7 +4,7 @@
 
 Build a rigorous understanding of LLM training, concentrating on post-training methods, while using that learning to prepare the PhD qualification-exam position paper and presentation. Reading, critical synthesis, and practical experiments should support one another rather than become separate tracks.
 
-The current working corpus contains ten central sources on LLM post-training. It deliberately includes peer-reviewed papers, preprints, technical reports, and first-party research articles because important production-scale methods are often disclosed outside conventional proceedings. All ten are treated as selected works for learning and synthesis; the final administrative classification should still be confirmed with the supervisor.
+The current working corpus contains nine central sources on LLM post-training. It deliberately includes peer-reviewed papers, preprints, technical reports, and first-party research articles because important production-scale methods are often disclosed outside conventional proceedings. All nine are treated as selected works for learning and synthesis; the final administrative classification should still be confirmed with the supervisor.
 
 ## Learning scope
 
@@ -38,7 +38,7 @@ Based on the Department of Computer Science Graduate Handbook for the PhD Progra
 
 ## Deliverables
 
-- A supervisor-approved list of 5-10 core works drawn from the ten-source working corpus.
+- A supervisor-approved list of 5-10 core works drawn from the nine-source working corpus.
 - Reading notes that cover both the core papers and enough surrounding literature to place them in context.
 - A critical comparison of each paper's question, methods, evidence, assumptions, and limitations.
 - A coherent position on the selected research area, supported by the literature rather than a sequence of isolated paper summaries.
