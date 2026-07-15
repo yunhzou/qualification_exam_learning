@@ -3,7 +3,6 @@
   "python.terminal.activateEnvironment": true,
   "files.exclude": {
     "**/__pycache__": true,
-    ".tools": true,
-    "build": true
+    ".tools": true
   }
 }
