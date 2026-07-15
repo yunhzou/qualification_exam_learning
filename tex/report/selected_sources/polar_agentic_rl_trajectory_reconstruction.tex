@@ -1,0 +1,26 @@
+\subsection{Polar: reconstructing agentic RL trajectories}
+
+\paragraph{Source type.}
+Systems-oriented arXiv preprint with open code, four coding-harness training runs, and a
+trajectory-builder ablation \citep{xu2026polar}.
+
+\paragraph{Question.}
+How can an unchanged agent harness produce token-faithful RL trajectories when one session
+contains many model calls, context management, tools, and multiple agents?
+
+\paragraph{Method.}
+Polar proxies the harness's model API traffic and records prompts, sampled token IDs,
+behavior log probabilities, and responses. It either emits each request independently or
+prefix-merges calls into append-only chains. A strict prompt-prefix check makes context
+compaction, prompt rewriting, subagents, and branches natural trace boundaries.
+
+\paragraph{Relevance.}
+The paper separates three units that should not be conflated in agentic RL: the complete
+session, each token-faithful trace chain, and the trainable sampled actions. This boundary
+is necessary before reasoning about outcome-reward propagation, process credit, or policy
+staleness.
+
+\paragraph{Limitation.}
+Polar solves capture, reconstruction, and scaling rather than the general credit-assignment
+problem. Session-level reward broadcasting can be noisy, and the reported learning
+results use software-engineering tasks and a simple GRPO setup.

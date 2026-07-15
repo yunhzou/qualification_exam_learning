@@ -1,0 +1,27 @@
+\subsection{Agentic rollout units and context boundaries}
+
+An agent session is not necessarily one valid autoregressive training trace. It may
+contain hundreds of model calls, subagents, parallel branches, tool-mediated context, and
+harness-level context compaction. Polar places a proxy at the model API boundary and
+reconstructs one or more trainer-facing traces from the token-level calls made during the
+session \citep{xu2026polar}.
+
+Its conservative strategy treats every model request as a separate trace. Its prefix
+merging strategy forms a longer chain only when a grouping key identifies a continuation
+and the next prompt preserves the previous prompt as an exact token prefix. Context
+compaction, prompt replacement, a new subagent, or a parallel branch breaks this relation
+and initializes a separate chain from the new prompt. Calling this merely ``off-policy
+context'' is imprecise: the new prompt is conditioning state, while trainable actions must
+still be tokens sampled by the behavior policy that produced the rollout.
+
+Within a merged chain, sampled assistant tokens retain their original token IDs and
+behavior-policy log probabilities. Canonical renderings, tool responses, and other
+interstitial context are retained when needed for conditioning but receive a zero loss
+mask. The resulting invariant is that every trainable token is behavior-policy faithful.
+
+This trace boundary creates a separate credit-assignment question. One session-level
+outcome may correspond to several trace chains. Broadcasting that reward to every short
+request can create noisy credit; Polar reports reward hacking in its per-request ablation.
+The later RL analysis should therefore distinguish the session that receives an outcome,
+the trace that preserves an on-policy token chain, and the individual action tokens that
+receive gradients.
