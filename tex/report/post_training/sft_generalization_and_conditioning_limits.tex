@@ -22,7 +22,7 @@ therefore reduce diversity, reinforce template artifacts, and shift capability a
 domains absent from the mixture. Low training loss establishes imitation of the training
 set, not generalization.
 
-\paragraph{Length changes example weight.}
+\paragraph{Working observation: long trajectories can dominate SFT.}
 Let $\bar{g}_b$ be the mean gradient over the $M_b$ supervised tokens in trajectory $b$.
 The token-mean gradient can be rewritten as
 \begin{equation}
@@ -30,6 +30,9 @@ The token-mean gradient can be rewritten as
   =\sum_{b=1}^{B}\frac{M_b}{\sum_j M_j}\,\bar{g}_b.
 \end{equation}
 Thus trajectories with more supervised tokens have more influence on the update direction.
+Equal numbers of long and short trajectories therefore do not imply equal influence: a
+trajectory with ten times as many supervised tokens receives roughly ten times the weight
+of a short trajectory before differences in the token gradients themselves are considered.
 This is the expected maximum-likelihood objective when each next-token decision is the
 unit of data, but it is not automatically the right task mixture. A verbose reasoning
 trace may dominate a short tool call even if the two examples should receive equal task
@@ -59,6 +62,12 @@ instruction SFT alone could still yield strong long-context task performance
 \citep{gao2024longcontext}. These results do not define one universal schedule; they show
 that separating or mixing lengths should be justified by the target capability and
 validated experimentally.
+
+An open question for the source review is how production post-training pipelines control
+this imbalance: whether they accept token weighting, balance sampling by task or token
+budget, normalize within trajectories, cap long responses, or use a separate long-context
+stage. The GLM technical reports and other first-party training reports will be examined
+for concrete evidence rather than assuming one convention.
 
 \paragraph{Teacher-forced prefixes.}
 During SFT, the model predicts each response token after the correct demonstrated prefix.
