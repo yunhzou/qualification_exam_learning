@@ -29,3 +29,24 @@ alternative first averages within each example and then averages examples:
 \end{equation}
 where $M_b=\sum_t m_{b,t}$. Neither reduction is universally correct; they express
 different choices about whether tokens or demonstrations receive equal total weight.
+
+\paragraph{What $M$ means in current libraries.}
+$M$ is not the configured maximum sequence length. In the current Hugging Face causal-LM
+loss, labels are shifted once, positions with the ignore index $-100$ are excluded, and
+the summed loss is divided by the number of remaining prediction targets across the
+effective accumulated batch \citep{huggingface2026gradientaccumulation,
+huggingface2026transformersloss}. TRL constructs the ignored positions from completion or
+assistant masks; its \texttt{max\_length} instead controls truncation and, when packing is
+enabled, the packed block length \citep{huggingface2026trlsft}. Torchtune follows the same
+basic convention by counting labels unequal to its ignore index and dividing accumulated
+loss by that valid-token count \citep{pytorch2026torchtuneloss}.
+
+Consequently, a padded batch with tensor shape $[B,T]$ still has
+\begin{equation}
+  M=\sum_{b=1}^{B}\sum_{t=0}^{T-1}
+    \mathbf{1}\{\text{shifted label}_{b,t}\neq -100\}\leq BT.
+\end{equation}
+If full-sequence loss and packing make nearly every position valid, $M$ can be close to
+$B$ times the packed length. Under response-only SFT it may be much smaller and varies
+with the number of assistant tokens, regardless of how much padding or masked prompt
+context occupies the tensor.

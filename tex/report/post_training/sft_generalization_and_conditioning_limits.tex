@@ -22,6 +22,44 @@ therefore reduce diversity, reinforce template artifacts, and shift capability a
 domains absent from the mixture. Low training loss establishes imitation of the training
 set, not generalization.
 
+\paragraph{Length changes example weight.}
+Let $\bar{g}_b$ be the mean gradient over the $M_b$ supervised tokens in trajectory $b$.
+The token-mean gradient can be rewritten as
+\begin{equation}
+  g_{\mathrm{token}}
+  =\sum_{b=1}^{B}\frac{M_b}{\sum_j M_j}\,\bar{g}_b.
+\end{equation}
+Thus trajectories with more supervised tokens have more influence on the update direction.
+This is the expected maximum-likelihood objective when each next-token decision is the
+unit of data, but it is not automatically the right task mixture. A verbose reasoning
+trace may dominate a short tool call even if the two examples should receive equal task
+weight.
+
+For agent data, total context length and supervised length must be distinguished. A long
+system prompt or tool response that is masked from the SFT loss increases attention and
+activation cost but does not increase $M_b$. A long assistant reasoning or action span
+does increase $M_b$. If selected environment tokens receive an ECHO-style auxiliary loss,
+that objective has its own supervised-token count and coefficient; it should not silently
+be folded into the assistant-token denominator.
+
+\paragraph{Mixing short and long examples.}
+Packing and length-grouped batching are systems optimizations: they reduce padding and
+improve utilization, but they do not by themselves equalize trajectory weights. A useful
+default is to mix lengths, then monitor both total processed length and supervised-token
+length by task and data source. If long traces dominate unintentionally, the data loader
+can balance task or length strata, the objective can use per-example normalization, or
+supervised spans can be capped or explicitly weighted. Short- and long-context evaluation
+should remain separate so that a single aggregate loss does not hide a regression.
+
+Extreme context extension is often treated as a distinct empirical design problem rather
+than an ordinary batching choice. LongSkywork used a specialized long-context SFT stage
+after standard SFT \citep{zhao2024longskywork}. In contrast, the ProLong study found that
+high-quality short data was important in its long-context training mixture and that short
+instruction SFT alone could still yield strong long-context task performance
+\citep{gao2024longcontext}. These results do not define one universal schedule; they show
+that separating or mixing lengths should be justified by the target capability and
+validated experimentally.
+
 \paragraph{Teacher-forced prefixes.}
 During SFT, the model predicts each response token after the correct demonstrated prefix.
 During inference, described in Section~\ref{sec:transformer-inference}, each new token is
