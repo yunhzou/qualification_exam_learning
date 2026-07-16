@@ -1,7 +1,10 @@
 \subsection{Deriving the importance ratio}
+\label{subsec:grpo-importance-ratio}
 
-The probability ratio is not a second reward signal. It follows from estimating an
-expectation under a new policy using actions sampled from an old policy. Fix a
+This subsection returns to the actual reward term $\rho_{i,t}A_i$ inside
+Equation~\ref{eq:grpo-full-loss}. The probability ratio is not a second reward signal. It
+follows from estimating an expectation under a new policy using actions sampled from an
+old policy. Fix a
 prompt-prefix state $s$ and treat the already computed advantage
 $A_{\mathrm{old}}(s,a)$ as constant. The new policy's expected advantage is
 \begin{align}
@@ -33,19 +36,33 @@ advantage is one. Importance weighting the old distribution gives exactly the sa
 Without the ratios, the old samples would still average to zero and would not represent
 the changed policy.
 
-Advantage alone is detached, so $\nabla_\theta A=0$. The trainable dependence enters
-through $\log\pi_\theta$ in Equation~\ref{eq:grpo-basic-trajectory-objective}, or through
-$\rho_\theta$ in Equation~\ref{eq:grpo-importance-weighted-expectation}. When
+Advantage alone is detached, so $\nabla_\theta A=0$. In the actual GRPO reward term, the
+trainable dependence enters through $\rho_\theta$ in
+Equation~\ref{eq:grpo-importance-weighted-expectation}. When
 $\pi_\theta=\pi_{\mathrm{old}}$, the ratio equals one but its gradient does not vanish:
 \begin{equation}
   \nabla_\theta\rho_\theta
   =\rho_\theta\nabla_\theta\log\pi_\theta.
   \label{eq:grpo-ratio-gradient}
 \end{equation}
-Thus $\nabla_\theta(\rho A)=A\nabla_\theta\log\pi_\theta$ at the behavior policy. The
-basic log-probability objective and the ratio objective have the same first-order policy
-gradient there. The GRPO surrogate optimizes $\rho A$; it does not multiply this term by
-an additional cross-entropy loss.
+Thus $\nabla_\theta(\rho A)=A\nabla_\theta\log\pi_\theta$ at the behavior policy. After
+averaging over a trajectory, this is exactly the gradient in
+Equation~\ref{eq:grpo-advantage-weighted-gradient}. Therefore the log-probability
+expression in Section~\ref{subsec:grpo-gradient-direction} was a teaching surrogate for
+the initial gradient, whereas
+$\rho A$ is the quantity that actually appears in the GRPO loss. The two are not added
+together, and GRPO does not multiply $\rho A$ by a separate cross-entropy loss.
+
+Before clipping, the reward contribution for trajectory $i$ is therefore
+\begin{equation}
+  J_i^{\mathrm{reward}}(\theta)
+  =\frac{1}{T_i}\sum_{t=1}^{T_i}\rho_{i,t}(\theta)A_i.
+  \label{eq:grpo-unclipped-reward-objective}
+\end{equation}
+Section~\ref{subsec:grpo-clipped-objective} replaces each $\rho_{i,t}A_i$ with its clipped
+version and restores the
+reference-policy KL term, producing the two pieces inside the brackets of
+Equation~\ref{eq:grpo-full-loss}.
 
 For a complete response, exact change of distribution would use a trajectory ratio:
 \begin{equation}

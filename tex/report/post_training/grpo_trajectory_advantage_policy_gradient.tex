@@ -1,29 +1,37 @@
-\subsection{How a trajectory advantage drives optimization}
+\subsection{The gradient direction behind the GRPO reward term}
+\label{subsec:grpo-gradient-direction}
 
-To isolate the role of the advantage, first omit importance ratios, clipping, and
-Kullback--Leibler (KL) control. Replay sampled trajectory $i$ through the trainable model with teacher forcing
-and retrieve the log-probability of every sampled token. A simple trajectory objective is
+The reward-driven part of the complete loss in Equation~\ref{eq:grpo-full-loss} contains
+the product $\rho_{i,t}A_i$. Before deriving the ratio $\rho_{i,t}$, it is useful to expose
+the gradient direction that this product must produce. For that purpose only, define the
+teaching surrogate
 \begin{equation}
-  J_i(\theta)
+  \widetilde J_i(\theta)
   = A_i\frac{1}{T_i}\sum_{t=1}^{T_i}
     \log\pi_\theta(o_{i,t}\mid q,o_{i,<t}),
   \qquad
-  \mathcal{L}_i=-J_i.
+  \widetilde{\mathcal{L}}_i=-\widetilde J_i.
   \label{eq:grpo-basic-trajectory-objective}
 \end{equation}
+This is not an additional term to be added to the GRPO loss. It is a temporary expression
+whose gradient makes the effect of $A_i$ easy to see. Replay sampled trajectory $i$
+through the trainable model with teacher forcing and retrieve the log-probability of every
+sampled token.
+
 The advantage is computed before optimization and treated as a detached constant. Its
 effect becomes clear by differentiating:
 \begin{equation}
-  \nabla_\theta J_i
+  \nabla_\theta \widetilde J_i
   = A_i\frac{1}{T_i}\sum_{t=1}^{T_i}
     \nabla_\theta\log\pi_\theta(o_{i,t}\mid q,o_{i,<t}).
   \label{eq:grpo-advantage-weighted-gradient}
 \end{equation}
 
-If $A_i>0$, gradient ascent on $J_i$ increases the log-probabilities of the sampled
-actions. Because training software minimizes $\mathcal{L}_i=-J_i$, the optimizer produces
-the same direction. If $A_i<0$, the sign reverses and the sampled actions become less
-likely. If $A_i=0$, the trajectory contributes no reward-driven gradient.
+If $A_i>0$, gradient ascent on $\widetilde J_i$ increases the log-probabilities of the
+sampled actions. Because training software minimizes
+$\widetilde{\mathcal{L}}_i=-\widetilde J_i$, the optimizer produces the same direction. If
+$A_i<0$, the sign reverses and the sampled actions become less likely. If $A_i=0$, the
+trajectory contributes no reward-driven gradient.
 
 For a positive-advantage response `5 <eos>', the sampled `5' is reinforced under the
 original prompt and the sampled end token is reinforced under the prefix containing `5'.
@@ -37,4 +45,7 @@ weighted gradients from every sampled action; those contributions may agree or c
 and one parameter update changes behavior in many unobserved contexts. The factor
 $1/T_i$ gives each trajectory equal total normalization. A global mean over all valid
 tokens instead gives longer responses more influence, so the reduction rule must be stated
-when trajectories have different lengths.
+when trajectories have different lengths. Section~\ref{subsec:grpo-importance-ratio} now
+returns to the actual
+$\rho_{i,t}A_i$ term in Equation~\ref{eq:grpo-full-loss} and shows why its gradient matches
+Equation~\ref{eq:grpo-advantage-weighted-gradient} at the behavior policy.

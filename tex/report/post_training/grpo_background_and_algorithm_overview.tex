@@ -21,6 +21,13 @@ weighting, the complete loss studied in this section is
   \end{aligned}
   \label{eq:grpo-full-loss}
 \end{equation}
+Read Equation~\ref{eq:grpo-full-loss} from the outside inward. The loss first averages
+equally over the $G$ responses, then averages over the $T_i$ trainable tokens in each
+response. Each token contributes two pieces: a clipped reward-driven term containing
+$\rho_{i,t}A_i$, and a reference-policy KL cost weighted by $\beta$. The leading minus
+sign makes minimizing the loss maximize the reward-driven term while minimizing the KL
+cost.
+
 Its three constructed quantities are
 \begin{align}
   A_i
@@ -48,9 +55,14 @@ quantity $d_{i,t}$ constructs a sampled KL cost relative to a separate frozen re
 policy $\pi_{\mathrm{ref}}$, and $\beta$ sets the strength of that cost. The leading minus
 sign converts a quantity that should be maximized into a loss minimized by the optimizer.
 
-Equation~\ref{eq:grpo-full-loss} is the map for the rest of the section: first construct
-$A_i$, then derive $\rho_{i,t}$, and finally explain clipping and reference-policy KL.
-Operationally, GRPO performs the following high-level loop:
+Equation~\ref{eq:grpo-full-loss} is the map for the rest of the section.
+Section~\ref{subsec:grpo-group-advantage} constructs $A_i$.
+Section~\ref{subsec:grpo-gradient-direction} uses a temporary log-probability surrogate
+only to explain the gradient direction; it does not add another term to the loss.
+Section~\ref{subsec:grpo-importance-ratio} derives the actual $\rho_{i,t}A_i$ reward term,
+and Section~\ref{subsec:grpo-clipped-objective} adds clipping and KL before explicitly
+reassembling Equation~\ref{eq:grpo-full-loss}. Operationally, GRPO performs the following
+high-level loop:
 \begin{enumerate}
   \item freeze the current model and use that snapshot to sample $G$ responses to the
         same prompt;
