@@ -1,35 +1,60 @@
-\subsection{The parent objective: increase expected advantage}
+\subsection{From one scalar judgment to a policy gradient}
 \label{subsec:grpo-gradient-direction}
 
-Section~\ref{subsec:grpo-group-advantage} assigns each sampled response an advantage. Hold
-those advantages fixed during the subsequent optimizer step and temporarily omit clipping
-and reference-policy KL. The conceptual objective is
+After sibling comparison, a sampled response may have advantage $+1$ or $-1$. The checker
+still does not say which replacement tokens would be better, and its score cannot be
+differentiated. The only honest update is therefore to reweight the behavior the model
+actually produced: make a positive-advantage response more likely and a
+negative-advantage response less likely.
+
+Consider only two possible responses. The behavior policy gives each probability $0.5$;
+one has advantage $+1$ and the other $-1$. If a new policy moves their probabilities to
+$0.7$ and $0.3$, it has moved in the desired direction because
+\begin{equation}
+  0.7(+1)+0.3(-1)=0.4>0.
+  \label{eq:grpo-parent-objective-example}
+\end{equation}
+The verbal goal is therefore: adjust the policy so that a response drawn from it tends to
+have positive advantage. Mathematically, that goal is the expected-advantage objective
 \begin{equation}
   J_{\mathrm{adv}}(\theta)
   =\mathbb{E}_{o\sim\pi_\theta(\cdot\mid q)}
     \left[A_{\mathrm{old}}(q,o)\right].
   \label{eq:grpo-parent-expected-advantage}
 \end{equation}
-This is the parent objective from which the reward-driven part of GRPO is constructed. It
-is not an extra loss term. It asks a direct question: after changing the policy, will the
-policy place more probability on responses that had positive advantage and less on
-responses that had negative advantage?
+The advantages are held fixed during this optimizer step. They judge the samples; the
+trainable object is the probability that the policy assigns to those samples.
 
-For a two-response example, suppose the behavior policy assigns probability $0.5$ to a
-response with advantage $+1$ and probability $0.5$ to a response with advantage $-1$.
-Its expected advantage is zero. A new policy assigning probabilities $0.7$ and $0.3$ has
-expected advantage
+Why does a log-probability gradient appear? Write the expectation as a probability-
+weighted sum and differentiate it. The identity
+$\nabla_\theta\pi_\theta=\pi_\theta\nabla_\theta\log\pi_\theta$ turns the result back into
+an expectation that can be estimated with sampled responses:
 \begin{equation}
-  0.7(+1)+0.3(-1)=0.4.
-  \label{eq:grpo-parent-objective-example}
+  \nabla_\theta J_{\mathrm{adv}}
+  =\mathbb{E}_{o\sim\pi_\theta}
+    \left[A_{\mathrm{old}}(q,o)\nabla_\theta\log\pi_\theta(o\mid q)\right].
+  \label{eq:grpo-parent-policy-gradient}
 \end{equation}
-The objective prefers the new policy because probability moved toward the better response.
-The advantage therefore supplies the direction of preference; the policy probabilities
-determine whether the model actually moves in that direction.
+This formula is not an arbitrary loss design. It is the derivative of ``put more
+probability on responses with positive advantage.'' The log appears because it provides a
+sample-based way to differentiate a probability distribution when the reward itself is a
+black box.
 
-Equation~\ref{eq:grpo-parent-expected-advantage} is easy to state but cannot be evaluated
-directly from the current rollout buffer: its expectation is under $\pi_\theta$, while the
-stored responses were sampled from $\pi_{\mathrm{old}}$.
-Section~\ref{subsec:grpo-importance-ratio} first corrects this sampling-distribution
-mismatch exactly with a trajectory importance ratio. It then explains the additional
-approximation that produces the per-token $\rho_{i,t}A_i$ term in the GRPO formula.
+An autoregressive model assigns a response probability by multiplying its conditional
+token probabilities. Taking a logarithm turns that product into a sum:
+\begin{equation}
+  \log\pi_\theta(o_i\mid q)
+  =\sum_{t=1}^{T_i}\log\pi_\theta(o_{i,t}\mid q,o_{i,<t}).
+  \label{eq:grpo-response-logprob-decomposition}
+\end{equation}
+Consequently, one response-level advantage weights the gradients of every sampled token
+decision. For a positive-advantage response `5 <eos>', the model reinforces both emitting
+`5' from the prompt and stopping after the prefix containing `5'. For a
+negative-advantage response `4 <eos>', both sampled decisions are suppressed. This is
+coarse outcome-level credit assignment: the final judgment does not identify which token
+deserved credit.
+
+The principle is now clear, but the current buffer creates a practical mismatch. The
+desired expectation concerns the trainable policy $\pi_\theta$, while the stored answers
+came from the frozen behavior policy $\pi_{\mathrm{old}}$. The next subsection connects
+the desired update to those stored samples.

@@ -1,8 +1,14 @@
-\subsection{From expected advantage to the GRPO reward surrogate}
+\subsection{From stored behavior to the GRPO reward surrogate}
 \label{subsec:grpo-importance-ratio}
 
-Begin with the parent objective in Equation~\ref{eq:grpo-parent-expected-advantage}. For a
-fixed prompt, rewrite its expectation using trajectories sampled by the behavior policy:
+The learner wants to ask how well the new policy would perform, but its expensive stored
+responses were sampled by the old policy. A response that became twice as probable under
+the new policy should count twice as much when estimating the new expectation; one that
+became half as probable should count half as much. The new-to-old probability ratio makes
+exactly this change of perspective.
+
+For a fixed prompt, inserting that ratio rewrites the desired expected advantage without
+changing its value:
 \begin{align}
   J_{\mathrm{adv}}(\theta)
   &=\sum_o \pi_\theta(o\mid q)A_{\mathrm{old}}(q,o) \notag\\
@@ -16,16 +22,17 @@ fixed prompt, rewrite its expectation using trajectories sampled by the behavior
                     {\pi_{\mathrm{old}}(o_i\mid q)}.
   \label{eq:grpo-trajectory-importance-expectation}
 \end{align}
-This equality is ordinary importance sampling. It changes the distribution used to compute
-the expectation without changing the expectation itself. With $G$ stored trajectories, a
-Monte Carlo estimate of this exact expression is
+With $G$ stored responses, the corresponding Monte Carlo estimate is
 \begin{equation}
   \widehat J_{\mathrm{trajectory}}(\theta)
   =\frac{1}{G}\sum_{i=1}^{G}w_i(\theta)A_i.
   \label{eq:grpo-trajectory-importance-estimator}
 \end{equation}
+This trajectory-level importance correction is still exactly connected to the original
+expected-advantage objective.
 
-For an autoregressive response, the trajectory ratio is a product of token ratios:
+The next problem comes from response length. An autoregressive response probability is a
+product, so the exact response ratio is also a product:
 \begin{equation}
   w_i(\theta)
   =\prod_{t=1}^{T_i}\rho_{i,t}(\theta),
@@ -35,47 +42,40 @@ For an autoregressive response, the trajectory ratio is a product of token ratio
          {\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,<t})}.
   \label{eq:grpo-complete-trajectory-ratio}
 \end{equation}
-Up to this point, the connection to the parent objective is exact. The difficulty is that
-a product of many ratios can become extremely small or large, so its variance grows badly
-with response length.
+Multiplying hundreds or thousands of slightly imperfect ratios can produce an extremely
+small or large number. One entire response then receives almost no weight or dominates
+the batch, making the exact estimator too unstable for a practical local update.
 
-GRPO therefore makes a deliberate surrogate choice: it replaces the single trajectory
-product with an average of local per-token ratios while broadcasting the trajectory
-advantage to every sampled token:
+GRPO chooses a more local question: for each sampled token decision, did the new policy
+make that same decision more or less likely? It averages those local ratios while giving
+every token the response's shared advantage:
 \begin{equation}
   J_{\mathrm{reward}}^{\mathrm{GRPO}}(\theta)
   =\frac{1}{G}\sum_{i=1}^{G}\frac{1}{T_i}\sum_{t=1}^{T_i}
     \rho_{i,t}(\theta)A_i.
   \label{eq:grpo-unclipped-reward-objective}
 \end{equation}
-Equation~\ref{eq:grpo-unclipped-reward-objective} is not algebraically equal to the exact
-trajectory estimator in Equation~\ref{eq:grpo-trajectory-importance-estimator}. It is a
-local policy-improvement surrogate chosen to avoid the unstable trajectory-ratio product.
-This is the unclipped reward-driven term that appears inside
-Equation~\ref{eq:grpo-full-loss}.
+This is the crucial non-equivalence. Equation~\ref{eq:grpo-unclipped-reward-objective} is
+not another exact rewrite of Equation~\ref{eq:grpo-trajectory-importance-estimator}; it is
+GRPO's local surrogate for avoiding the high-variance trajectory product. The factor
+$1/T_i$ gives each response equal total normalization rather than letting a longer answer
+win merely by containing more token terms.
 
-The surrogate still produces the intended policy-gradient direction near the behavior
-policy. Because
+Near the behavior policy, this surrogate still implements the intended ``good up, bad
+down'' update. Initially every local ratio is one, but its gradient is not zero:
 \begin{equation}
   \nabla_\theta\rho_{i,t}
-  =\rho_{i,t}\nabla_\theta\log\pi_\theta(o_{i,t}\mid q,o_{i,<t}),
+  =\rho_{i,t}\nabla_\theta\log\pi_\theta(o_{i,t}\mid q,o_{i,<t}).
   \label{eq:grpo-ratio-gradient}
 \end{equation}
-and $\rho_{i,t}=1$ when $\pi_\theta=\pi_{\mathrm{old}}$, its initial gradient is
+Therefore its initial gradient is the advantage-weighted log-probability gradient derived
+from intuition in Section~\ref{subsec:grpo-gradient-direction}:
 \begin{equation}
   \left.\nabla_\theta J_{\mathrm{reward}}^{\mathrm{GRPO}}\right|_{\pi_\theta=\pi_{\mathrm{old}}}
   =\frac{1}{G}\sum_{i=1}^{G}\frac{A_i}{T_i}\sum_{t=1}^{T_i}
     \nabla_\theta\log\pi_\theta(o_{i,t}\mid q,o_{i,<t}).
   \label{eq:grpo-advantage-weighted-gradient}
 \end{equation}
-A positive $A_i$ therefore increases the log-probabilities of the sampled actions, while
-a negative $A_i$ decreases them. For a positive-advantage response `5 <eos>', both the
-decision to emit `5' and the decision to stop after `5' are reinforced. The factor $1/T_i$
-gives each response equal total normalization rather than automatically giving longer
-responses more weight.
-
-The derivation has now reached the $\rho_{i,t}A_i$ term in the full GRPO formula. The
-remaining modifications are stabilizers: Section~\ref{subsec:grpo-clipped-objective}
-clips this reward surrogate and subtracts the reference-policy KL cost before converting
-the maximization objective into the minimized loss in
-Equation~\ref{eq:grpo-full-loss}.
+The reward-driven part of the full formula has now emerged. What remains is to stop stale
+samples from supporting excessively large updates and to protect behavior not measured by
+the reward.

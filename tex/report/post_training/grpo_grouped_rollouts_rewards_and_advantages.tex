@@ -1,18 +1,33 @@
-\subsection{Grouped rollouts, rewards, and relative advantages}
+\subsection{Why a group becomes the baseline}
 \label{subsec:grpo-group-advantage}
 
-At the beginning of a rollout iteration, freeze the current model as the behavior policy
-$\pi_{\mathrm{old}}$. For each prompt $q$, sample $G$ complete responses:
+Suppose a response receives reward $8$. That number alone does not say whether the model
+should repeat the response. If the model usually scores $9$ on this prompt, the response
+was worse than expected; if it usually scores $2$, the same score was unusually good.
+Learning needs a relative signal: reward minus the expected reward for this particular
+prompt. This difference is the advantage.
+
+One way to estimate the expected reward is to train a value model. GRPO instead estimates
+it by direct sampling. At the beginning of a rollout iteration, freeze the current model
+as the behavior policy $\pi_{\mathrm{old}}$ and sample $G$ sibling responses to the same
+prompt:
 \begin{equation}
   o_1,\ldots,o_G \sim \pi_{\mathrm{old}}(\cdot\mid q).
   \label{eq:grpo-grouped-rollouts}
 \end{equation}
-Sampling is autoregressive. At token position $t$, the policy conditions on the prompt and
-the already sampled prefix $o_{i,<t}$. No gradient is recorded during this generation
-phase.
+A verifier or reward model assigns one scalar $r_i=R(q,o_i)$ to each complete response.
+The group mean is a Monte Carlo estimate of what this policy normally earns on this
+prompt. Subtracting it makes average performance neutral, better responses positive, and
+worse responses negative.
 
-A verifier or reward model then assigns one scalar reward $r_i=R(q,o_i)$ to each complete
-response. GRPO converts these rewards into group-relative advantages:
+GRPO also divides by the group's reward standard deviation. The motivation is scale:
+reward differences of $0.1$ may be substantial for one prompt while another prompt spans
+the full interval from $0$ to $1$. Standardization makes the signal describe relative
+standing within the group rather than inherit the raw scale of each prompt. This division
+is a normalization heuristic, not a requirement of an unbiased baseline, and it changes
+the weighting induced by different groups.
+
+These choices give the group-relative advantage
 \begin{equation}
   A_i
   = \frac{r_i-\mu_q}{\sigma_q+\epsilon_A},
@@ -23,15 +38,16 @@ response. GRPO converts these rewards into group-relative advantages:
   \label{eq:grpo-group-advantage}
 \end{equation}
 
-For example, suppose four responses are sampled for the prompt ``$2+3$.'' Two responses
-produce the correct answer and receive reward $1.1$; two produce incorrect answers with
-valid formatting and receive reward $0.1$. The group mean is $0.6$ and the population
-standard deviation is $0.5$. The correct trajectories therefore receive advantages near
-$+1$, while the incorrect trajectories receive advantages near $-1$.
+For example, suppose four responses to ``$2+3$'' receive rewards
+$\{1.1,1.1,0.1,0.1\}$. Their mean is $0.6$ and their population standard deviation is
+$0.5$. The two correct responses receive advantages near $+1$; the two incorrect
+responses receive advantages near $-1$. The group acts like a small tournament among
+answers to the same question.
 
-The advantage is attached to a complete trajectory. It says that one response performed
-better or worse than other samples for the same prompt. It is not a token-level reward and
-does not yet specify how the model parameters should change. This is the $A_i$ supplied to
-the complete loss in Equation~\ref{eq:grpo-full-loss}. If every response receives
-the same reward, then $\sigma_q=0$ and the prompt provides no relative policy-gradient
-signal; practical implementations explicitly handle this zero-variance case.
+This replacement has a clear tradeoff. It removes the need to train a separate critic for
+the baseline, but it pays for several generations per prompt and retains Monte Carlo
+sampling noise. If all siblings receive the same reward, the group contains no evidence
+about which behavior was better: the relative learning signal is zero, and implementations
+must handle the zero-variance case explicitly. Finally, $A_i$ still belongs to the whole
+response. It has not yet explained how one number changes thousands of token decisions;
+that is the next problem.

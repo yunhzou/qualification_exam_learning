@@ -1,8 +1,13 @@
-\subsection{Clipped objective and reference-policy KL}
+\subsection{Why GRPO clips movement and retains a reference policy}
 \label{subsec:grpo-clipped-objective}
 
-For sampled token $o_{i,t}$, recompute its log-probability under the current policy and
-form the per-token ratio
+The local reward surrogate is most trustworthy near the policy that generated its data.
+After an optimizer step, however, the trainable policy changes while the stored actions do
+not. Reusing the buffer may be computationally attractive because generation is expensive,
+but each additional step asks increasingly stale samples to justify further movement.
+
+For sampled token $o_{i,t}$, the learner measures that mismatch by recomputing its
+log-probability and comparing it with the stored behavior-policy log-probability:
 \begin{equation}
   \rho_{i,t}(\theta)
   =\exp\!\left(
@@ -11,9 +16,10 @@ form the per-token ratio
     \right).
   \label{eq:grpo-token-ratio}
 \end{equation}
-If one buffer is optimized repeatedly, an unconstrained $\rho_{i,t}A_i$ term can keep
-rewarding movement even after the current policy is substantially different from the
-policy that supplied the sample. GRPO limits that incentive with the clipped surrogate
+A ratio near one says the sample still describes the current policy reasonably well. A
+large departure says that the learner is trying to draw a strong conclusion about a
+policy that did not generate this data. Clipping refuses to grant additional reward for
+moving farther in the already encouraged direction:
 \begin{equation}
   S_{i,t}(\theta)
   =\min\!\left(
@@ -23,17 +29,22 @@ policy that supplied the sample. GRPO limits that incentive with the clipped sur
   \label{eq:grpo-clipped-surrogate}
 \end{equation}
 
-Suppose $\epsilon=0.2$. For a positive advantage $A_i=1.5$ and ratio $\rho=1.5$, the raw
-term is $2.25$, while the clipped candidate is $1.2(1.5)=1.8$; the minimum selects $1.8$.
-The sampled action receives no additional credit for becoming more than $20\%$ more likely.
-For a negative advantage $A_i=-1$ and ratio $\rho=0.5$, the raw term is $-0.5$ and the
-clipped candidate is $-0.8$; the minimum selects $-0.8$. Reducing the probability farther
-than the lower boundary earns no additional improvement. The sign-sensitive minimum caps
-excess movement in the desired direction but does not hide movement in the wrong direction.
+Suppose $\epsilon=0.2$. For positive advantage $A_i=1.5$ and ratio $\rho=1.5$, the raw
+credit is $2.25$, but the clipped candidate is $1.2(1.5)=1.8$; the minimum selects $1.8$.
+The old sample provides no further reward for making its action more than $20\%$ likelier.
+For negative advantage $A_i=-1$ and ratio $\rho=0.5$, the raw term is $-0.5$ and the
+clipped candidate is $-0.8$; the minimum selects $-0.8$. Further suppression earns no
+additional improvement. Clipping is therefore a limit on what one stale batch may justify,
+not a new reward signal.
 
-Clipping controls movement relative to the behavior policy for the current buffer. A
-separate frozen reference policy limits cumulative drift from the model that began the RL
-stage. Using the sampled-action KL estimator common in this objective family, define
+Clipping only compares the policy with the snapshot that generated the current buffer.
+That snapshot is refreshed, so many individually small updates can still move the model
+far from its starting behavior. This matters because the reward measures only a narrow
+proxy: a math checker does not measure conversational quality, factual breadth, or every
+way the policy might exploit the checker. GRPO therefore keeps a separate frozen reference
+policy as a long-term anchor.
+
+Using the sampled-action KL estimator in this objective, define
 \begin{equation}
   d_{i,t}
   =\log\pi_{\mathrm{ref}}(o_{i,t}\mid q,o_{i,<t})
@@ -42,14 +53,15 @@ stage. Using the sampled-action KL estimator common in this objective family, de
   \widehat D_{i,t}=\exp(d_{i,t})-d_{i,t}-1.
   \label{eq:grpo-sampled-kl}
 \end{equation}
-The token objective is
+The token-level score combines the bounded reward incentive with the reference cost:
 \begin{equation}
   J_{i,t}^{\mathrm{GRPO}}(\theta)
   =S_{i,t}(\theta)-\beta\widehat D_{i,t}.
   \label{eq:grpo-token-objective}
 \end{equation}
-This token objective now contains both pieces promised by the top-level formula. Averaging
-it first over tokens and then equally over responses reassembles the complete loss:
+Higher reward credit improves this score; greater reference drift reduces it. Averaging
+over tokens and sibling responses, then negating because software minimizes losses,
+reassembles the full objective:
 \begin{equation}
   \mathcal{L}_{\mathrm{GRPO}}(\theta)
   =-\frac{1}{G}\sum_{i=1}^{G}\frac{1}{T_i}\sum_{t=1}^{T_i}
@@ -58,10 +70,8 @@ it first over tokens and then equally over responses reassembles the complete lo
     \left(S_{i,t}(\theta)-\beta\widehat D_{i,t}\right).
   \label{eq:grpo-reassembled-loss}
 \end{equation}
-Equation~\ref{eq:grpo-reassembled-loss} is Equation~\ref{eq:grpo-full-loss} written with
-the shorthand defined in this subsection. The clipping coefficient $\epsilon$ controls
-short-term reuse of one behavior batch; the KL coefficient $\beta$ controls long-term
-movement from the reference model.
-Historically, this clipped probability-ratio construction comes from Proximal Policy
-Optimization; GRPO adopts it after replacing the learned value baseline with its grouped
-reward baseline \citep{schulman2017ppo}.
+Equation~\ref{eq:grpo-reassembled-loss} is exactly
+Equation~\ref{eq:grpo-full-loss} written with the shorthand built in this subsection.
+Only now is the historical comparison useful: the clipped ratio construction was
+introduced by Proximal Policy Optimization, while GRPO replaces its learned value
+baseline with the sibling-group estimate \citep{schulman2017ppo}.

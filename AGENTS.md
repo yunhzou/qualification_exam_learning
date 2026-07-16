@@ -19,6 +19,13 @@
 
 ## Expository writing principles
 
+- Center explanations on human intuition, not notation. Before displaying any formula,
+  establish the concrete problem, the available action, and why that action is reasonable;
+  use the formula afterward as a compact model of an idea the reader already understands.
+- Build an algorithm as a causal chain of necessities. Begin with the learning signal and
+  the operational constraint, then let each baseline, ratio, clipping rule, or penalty
+  answer a problem created by the preceding step. Never present the final mathematics as
+  though its symbols explain their own motivation.
 - Write in conceptual dependency order. A section may use only ideas that it has already defined or that are genuine prerequisites established earlier in the document.
 - Start with the requested algorithm itself. State its inputs, outputs, training unit, and high-level execution loop before introducing derivations, implementation details, systems variants, or related papers.
 - Never use the name of another algorithm as an explanation. For example, do not explain GRPO by saying that it inherits PPO clipping before PPO clipping has been derived. Either teach the prerequisite first or defer the comparison until the GRPO mechanism is independently understandable.
