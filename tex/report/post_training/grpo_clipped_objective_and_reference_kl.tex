@@ -10,7 +10,9 @@ form the per-token ratio
     \right).
   \label{eq:grpo-token-ratio}
 \end{equation}
-GRPO uses PPO's clipped surrogate:
+If one buffer is optimized repeatedly, an unconstrained $\rho_{i,t}A_i$ term can keep
+rewarding movement even after the current policy is substantially different from the
+policy that supplied the sample. GRPO limits that incentive with the clipped surrogate
 \begin{equation}
   S_{i,t}(\theta)
   =\min\!\left(
@@ -48,3 +50,6 @@ The token objective is
 The implementation minimizes the negative mean of this quantity over trainable response
 tokens. The clipping coefficient $\epsilon$ controls short-term reuse of one behavior
 batch; the KL coefficient $\beta$ controls long-term movement from the reference model.
+Historically, this clipped probability-ratio construction comes from Proximal Policy
+Optimization; GRPO adopts it after replacing the learned value baseline with its grouped
+reward baseline \citep{schulman2017ppo}.

@@ -8,8 +8,8 @@ $H\in\mathbb{R}^{B\times T\times D}$, the layer first forms queries, keys, and v
 With $A$ heads and head width $d_h=D/A$, each tensor is viewed as
 $[B,A,T,d_h]$. For one head,
 \begin{equation}
-  A=\operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_h}}+M\right),
-  \qquad C=AV_h,
+  S=\operatorname{softmax}\!\left(\frac{QK^\top}{\sqrt{d_h}}+M\right),
+  \qquad C=SV_h,
 \end{equation}
 where $M_{ij}=-\infty$ when $j>i$. The causal mask is what makes the representation at
 position $i$ a function only of tokens $x_{\leq i}$. Contexts from all heads are

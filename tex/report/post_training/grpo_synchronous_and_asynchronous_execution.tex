@@ -5,6 +5,11 @@ The behavior and current policies match during generation. They diverge only if 
 learner performs multiple optimizer steps on that buffer. After optimization, workers
 receive the new policy and generate the next batch.
 
+Here, on-policy data means that the sampled actions come from the policy version serving
+as the behavior policy for the current update. Data become off-policy relative to the
+learner when a different policy version generated them. The probability ratio measures
+that version mismatch; clipping limits how much the learner trusts it.
+
 Asynchronous execution overlaps rollout generation with learning. Suppose a worker loads
 policy version 10 and begins a long tool-using trajectory. While it generates, the learner
 advances to version 13 using other workers' data. When the trajectory arrives, its
@@ -29,3 +34,10 @@ therefore combine ratios with policy-version metadata, regular worker refreshes,
 queues, lag thresholds, and filtering or rejection of stale trajectories. The exact
 sampled tokens and their behavior log-probabilities must remain attached to the data;
 recomputing the denominator with the learner invalidates the ratio.
+
+This short-lived rollout buffer differs from the Deep Q-Network (DQN) algorithm's
+long-lived experience replay \citep{mnih2015dqn}. DQN retains transitions from many policy versions for broad
+off-policy reuse and randomly samples them to reduce temporal correlation. GRPO normally
+keeps only current or recent behavior-policy data and discards it after limited
+optimization. The shared idea is reuse of collected experience; the acceptable policy lag
+and the learning objective are different.

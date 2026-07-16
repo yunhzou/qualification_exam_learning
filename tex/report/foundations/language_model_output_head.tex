@@ -12,9 +12,7 @@ these scores into probabilities. The head contains $DV$ parameters and costs abo
 $2BTDV$ FLOPs. Tying $W_{\mathrm{vocab}}$ to the input embedding table avoids storing a
 second $VD$ parameter matrix, but it does not remove this projection's computation.
 
-The logits contain $BTV$ values, which can be large when both the sequence and vocabulary
-are large. Training implementations commonly fuse the projection, softmax, and
-cross-entropy operations or process them in chunks so that unnecessary probability
-tensors are not retained. During autoregressive decoding, only the final position needs a
-vocabulary distribution, reducing the output shape for that step from $[B,T,V]$ to
-$[B,V]$.
+The $BTV$ logits can be large. Fused or chunked head, softmax, and cross-entropy operations
+avoid retaining unnecessary probability tensors. Autoregressive decoding needs a
+vocabulary distribution only at the final position, reducing this step's output from
+$[B,T,V]$ to $[B,V]$.

@@ -1,11 +1,10 @@
 \subsection{Training by next-token prediction}
 \label{sec:transformer-training}
 
-Training begins with complete token sequences. For
-\begin{center}
-  \texttt{[BOS, I, like, tea, EOS]},
-\end{center}
-the input at each position predicts the token immediately to its right. This creates four
+Training begins with complete token sequences. In
+\texttt{[BOS, I, like, tea, EOS]}, the \texttt{BOS} and \texttt{EOS} tokens mark the
+beginning and end of the sequence. The input at each position predicts the token
+immediately to its right. This creates four
 targets: \texttt{I}, \texttt{like}, \texttt{tea}, and \texttt{EOS}. The model factorizes
 the sequence probability as
 \begin{equation}

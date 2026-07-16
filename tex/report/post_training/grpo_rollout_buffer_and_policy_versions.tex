@@ -30,10 +30,3 @@ $\pi_{\mathrm{old}}$. Ratios then measure the mismatch created by reuse. Reuse c
 new information and may overfit sampled trajectories, stale their advantages, and push
 many ratios into the clipped region. It is an optional compute tradeoff, not a requirement
 of GRPO.
-
-This short-lived rollout buffer should not be confused with DQN's long-lived experience
-replay \citep{mnih2015dqn}. DQN stores transitions from many policy versions and uses
-off-policy Q-learning to reuse them broadly; random sampling also breaks temporal
-correlations. PPO and GRPO normally keep data only from the current or very recent
-behavior policy and discard it after limited optimization. Their buffer amortizes rollout
-cost while attempting to remain approximately on-policy.

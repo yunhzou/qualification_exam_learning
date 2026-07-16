@@ -21,7 +21,6 @@ assistant position attended to.
 
 The same ownership rule extends to agent trajectories. Assistant actions are normally
 supervised; tool and environment responses remain context but are not relabeled as
-assistant actions. An auxiliary objective may deliberately predict selected observation
-tokens. ECHO is one example of this separation \citep{shrivastava2026echo}. That is an
-additional environment-modeling loss, not ordinary response-only SFT, and arbitrary
-private, noisy, or transient tool output may be a poor target.
+assistant actions. A later auxiliary objective may deliberately predict selected
+observation tokens, but that is separate from the response-only SFT objective developed
+next.

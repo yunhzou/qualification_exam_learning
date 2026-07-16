@@ -34,7 +34,8 @@ different choices about whether tokens or demonstrations receive equal total wei
 $M$ is not the configured maximum sequence length. In the current Hugging Face causal-LM
 loss, labels are shifted once, positions with the ignore index $-100$ are excluded, and
 the summed loss is divided by the number of remaining prediction targets across the
-effective accumulated batch \citep{huggingface2026gradientaccumulation,
+effective accumulated batch. Here gradient accumulation means combining gradients from
+several microbatches before one optimizer step \citep{huggingface2026gradientaccumulation,
 huggingface2026transformersloss}. TRL constructs the ignored positions from completion or
 assistant masks; its \texttt{max\_length} instead controls truncation and, when packing is
 enabled, the packed block length \citep{huggingface2026trlsft}. Torchtune follows the same

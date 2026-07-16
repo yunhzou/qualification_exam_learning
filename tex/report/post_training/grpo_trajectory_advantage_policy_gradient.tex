@@ -1,7 +1,7 @@
 \subsection{How a trajectory advantage drives optimization}
 
-To isolate the role of the advantage, first omit importance ratios, clipping, and KL
-control. Replay sampled trajectory $i$ through the trainable model with teacher forcing
+To isolate the role of the advantage, first omit importance ratios, clipping, and
+Kullback--Leibler (KL) control. Replay sampled trajectory $i$ through the trainable model with teacher forcing
 and retrieve the log-probability of every sampled token. A simple trajectory objective is
 \begin{equation}
   J_i(\theta)

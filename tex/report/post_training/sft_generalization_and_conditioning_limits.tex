@@ -41,9 +41,10 @@ weight.
 For agent data, total context length and supervised length must be distinguished. A long
 system prompt or tool response that is masked from the SFT loss increases attention and
 activation cost but does not increase $M_b$. A long assistant reasoning or action span
-does increase $M_b$. If selected environment tokens receive an ECHO-style auxiliary loss,
-that objective has its own supervised-token count and coefficient; it should not silently
-be folded into the assistant-token denominator.
+does increase $M_b$. A separate auxiliary objective may deliberately train on selected
+environment tokens; ECHO is one example \citep{shrivastava2026echo}. That objective has
+its own supervised-token count and coefficient and should not silently be folded into the
+assistant-token denominator.
 
 \paragraph{Mixing short and long examples.}
 Packing and length-grouped batching are systems optimizations: they reduce padding and
@@ -80,5 +81,5 @@ model's own errors.
 SFT is therefore a strong initialization method when desired behavior can be demonstrated
 clearly. It does not by itself identify every valid alternative, evaluate terminal
 outcomes, or supply credit for actions taken on the model's own trajectory. Those are
-separate problems for the later sections on reinforcement learning, critics, and
-on-policy distillation.
+separate problems for later algorithms that learn from sampled trajectories or from
+denser evaluative feedback.

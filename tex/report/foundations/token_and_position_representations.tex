@@ -1,6 +1,7 @@
 \subsection{From token IDs to hidden vectors}
 
-The tokenizer produces integers, not semantic vectors. A learned embedding table
+Before the Transformer runs, a fixed tokenizer deterministically maps text to token IDs
+from a vocabulary of size $V$. These IDs are integers, not semantic vectors. A learned embedding table
 $E\in\mathbb{R}^{V\times D}$ selects one $D$-dimensional row for every input ID:
 \begin{equation}
   H^{(0)}_{b,t}=E[X_{b,t}]+P_t,

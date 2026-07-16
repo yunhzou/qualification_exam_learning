@@ -2,7 +2,7 @@
 
 The probability ratio is not a second reward signal. It follows from estimating an
 expectation under a new policy using actions sampled from an old policy. Fix a
-prompt-prefix state $s$ and treat the buffered advantage
+prompt-prefix state $s$ and treat the already computed advantage
 $A_{\mathrm{old}}(s,a)$ as constant. The new policy's expected advantage is
 \begin{align}
   J_s(\theta)
@@ -44,8 +44,8 @@ $\pi_\theta=\pi_{\mathrm{old}}$, the ratio equals one but its gradient does not 
 \end{equation}
 Thus $\nabla_\theta(\rho A)=A\nabla_\theta\log\pi_\theta$ at the behavior policy. The
 basic log-probability objective and the ratio objective have the same first-order policy
-gradient there. Canonical PPO and GRPO optimize $\rho A$; they do not multiply it by an
-additional cross-entropy term.
+gradient there. The GRPO surrogate optimizes $\rho A$; it does not multiply this term by
+an additional cross-entropy loss.
 
 For a complete response, exact change of distribution would use a trajectory ratio:
 \begin{equation}
@@ -55,8 +55,8 @@ For a complete response, exact change of distribution would use a trajectory rat
          {\pi_{\mathrm{old}}(o_t\mid q,o_{<t})}.
   \label{eq:grpo-complete-trajectory-ratio}
 \end{equation}
-The product becomes high-variance for long sequences. PPO-style training instead holds
-the behavior policy's sampled prefixes fixed and applies a local per-token ratio. GRPO
-broadcasts its trajectory advantage across those token terms. This is a local
-policy-improvement surrogate around $\pi_{\mathrm{old}}$, not exact reweighting after an
-arbitrarily large policy change \citep{schulman2017ppo}.
+The product becomes high-variance for long sequences. GRPO instead holds the behavior
+policy's sampled prefixes fixed and applies a local per-token ratio, broadcasting the
+trajectory advantage across those token terms. This is a local policy-improvement
+surrogate around $\pi_{\mathrm{old}}$, not exact reweighting after an arbitrarily large
+policy change.

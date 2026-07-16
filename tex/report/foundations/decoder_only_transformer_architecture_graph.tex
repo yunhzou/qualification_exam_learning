@@ -3,8 +3,14 @@
 A decoder-only Transformer maps a sequence of token IDs to one next-token distribution
 at every sequence position. It contains no encoder and no cross-attention. Its repeated
 unit is a causal decoder block: masked self-attention moves information between token
-positions, while an MLP transforms each position independently
+positions, while a multilayer perceptron (MLP) transforms each position independently
 \citep{vaswani2017attention}.
+
+The symbols used throughout this section are: batch size $B$, sequence length $T$, model
+width $D$, number of layers $L$, number of attention heads $A$, vocabulary size $V$, and
+MLP hidden width $F$. Computation is reported as approximate floating-point operations
+(FLOPs), counting one multiply and one add as two FLOPs. Memory formulas state what is
+stored rather than hiding it inside asymptotic notation.
 
 \begin{figure}[ht]
   \centering
@@ -39,9 +45,3 @@ positions, while an MLP transforms each position independently
   the tensor shape $[B,T,D]$.}
   \label{fig:decoder-only-transformer}
 \end{figure}
-
-The symbols used throughout this section are: batch size $B$, sequence length $T$, model
-width $D$, number of layers $L$, number of attention heads $A$, vocabulary size $V$, and
-MLP hidden width $F$. Computation is reported as approximate floating-point operations
-(FLOPs), counting one multiply and one add as two FLOPs. Memory formulas state what is
-stored rather than hiding it inside asymptotic notation.
