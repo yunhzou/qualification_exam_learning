@@ -1,9 +1,8 @@
-\section{Agentic reinforcement-learning traces}
+\section{On-policy agentic traces}
 
-The preceding GRPO derivation assumes that each training example is already a valid
-autoregressive trajectory. Agent harnesses complicate that assumption by introducing
-multiple model calls, tool responses, context replacement, subagents, and parallel
-branches. These are data-construction problems that arise after the policy-update
-algorithm has been defined.
+The GRPO importance ratio is valid only when each optimized token was sampled by the
+behavior policy recorded in its denominator. For an agent trajectory, the central question
+is therefore whether a model action remains on-policy or crosses a boundary that requires
+a new trajectory initialization.
 
 \input{tex/report/post_training/agentic_rl_trace_boundaries_and_token_fidelity}

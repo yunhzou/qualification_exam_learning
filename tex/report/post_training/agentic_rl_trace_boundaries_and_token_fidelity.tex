@@ -1,27 +1,23 @@
-\subsection{Polar trace boundaries and token fidelity}
+\subsection{Polar: preserving on-policy unit traces}
 
-An agent session is not necessarily one valid autoregressive training trace. It may
-contain hundreds of model calls, subagents, parallel branches, tool-mediated context, and
-harness-level context compaction. Polar places a proxy at the model API boundary and
-reconstructs one or more trainer-facing traces from the token-level calls made during the
-session \citep{xu2026polar}.
+Polar places a proxy at the model API boundary and records the exact token-level calls made
+during an agent session \citep{xu2026polar}. Assistant tokens are policy actions. They are
+trainable only when they were sampled by the recorded behavior policy. Prompts, tool
+responses, and other external context condition those actions but receive zero loss.
 
-Its conservative strategy treats every model request as a separate trace. Its prefix
-merging strategy forms a longer chain only when a grouping key identifies a continuation
-and the next prompt preserves the previous prompt as an exact token prefix. Context
-compaction, prompt replacement, a new subagent, or a parallel branch breaks this relation
-and initializes a separate chain from the new prompt. Calling this merely ``off-policy
-context'' is imprecise: the new prompt is conditioning state, while trainable actions must
-still be tokens sampled by the behavior policy that produced the rollout.
+Polar's conservative strategy treats every model request as a separate on-policy unit
+trace. Its prefix-merging strategy forms a longer trace only when a grouping key marks a
+continuation and the next request preserves the preceding token sequence as an exact
+prefix. In that case, the later action continues the same sampled trajectory.
 
-Within a merged chain, sampled assistant tokens retain their original token IDs and
-behavior-policy log probabilities. Canonical renderings, tool responses, and other
-interstitial context are retained when needed for conditioning but receive a zero loss
-mask. The resulting invariant is that every trainable token is behavior-policy faithful.
+Context compaction, prompt replacement, a new subagent, or a parallel branch breaks the
+prefix relation. The new request must initialize a new unit trace rather than be treated as
+the next state of the old trace. Otherwise the trainer would combine actions across an
+off-policy boundary and the recorded behavior-policy probabilities would no longer
+describe one valid sampled chain.
 
-This trace boundary creates a separate credit-assignment question. One session-level
-outcome may correspond to several trace chains. Broadcasting that reward to every short
-request can create noisy credit; Polar reports reward hacking in its per-request ablation.
-The later RL analysis should therefore distinguish the session that receives an outcome,
-the trace that preserves an on-policy token chain, and the individual action tokens that
-receive gradients.
+Within every unit trace, sampled assistant tokens retain their original token IDs and
+behavior-policy log-probabilities. Tool responses and other required context remain visible
+to the policy but are masked from the loss. The invariant is simple: every trainable token
+must be an exact action sampled by the behavior policy associated with that trace; when
+this can no longer be guaranteed, start a new trace.
