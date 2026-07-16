@@ -38,8 +38,8 @@ through $\log\pi_\theta$ in Equation~\ref{eq:grpo-basic-trajectory-objective}, o
 $\rho_\theta$ in Equation~\ref{eq:grpo-importance-weighted-expectation}. When
 $\pi_\theta=\pi_{\mathrm{old}}$, the ratio equals one but its gradient does not vanish:
 \begin{equation}
-  \nabla_\theta\rho_	heta
-  =\rho_	heta\nabla_\theta\log\pi_\theta.
+  \nabla_\theta\rho_\theta
+  =\rho_\theta\nabla_\theta\log\pi_\theta.
   \label{eq:grpo-ratio-gradient}
 \end{equation}
 Thus $\nabla_\theta(\rho A)=A\nabla_\theta\log\pi_\theta$ at the behavior policy. The
@@ -59,4 +59,5 @@ The product becomes high-variance for long sequences. GRPO instead holds the beh
 policy's sampled prefixes fixed and applies a local per-token ratio, broadcasting the
 trajectory advantage across those token terms. This is a local policy-improvement
 surrogate around $\pi_{\mathrm{old}}$, not exact reweighting after an arbitrarily large
-policy change.
+policy change. The resulting per-token quantity is the $\rho_{i,t}$ used in the complete
+loss in Equation~\ref{eq:grpo-full-loss}.

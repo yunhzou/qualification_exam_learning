@@ -47,9 +47,11 @@ The token objective is
   =S_{i,t}(\theta)-\beta\widehat D_{i,t}.
   \label{eq:grpo-token-objective}
 \end{equation}
-The implementation minimizes the negative mean of this quantity over trainable response
-tokens. The clipping coefficient $\epsilon$ controls short-term reuse of one behavior
-batch; the KL coefficient $\beta$ controls long-term movement from the reference model.
+With the weighting used here, the implementation first averages this quantity over the
+trainable tokens in each response, then averages equally over responses, and minimizes the
+negative result. The clipping coefficient $\epsilon$ controls short-term reuse of one
+behavior batch; the KL coefficient $\beta$ controls long-term movement from the reference
+model. These averages recover the complete loss in Equation~\ref{eq:grpo-full-loss}.
 Historically, this clipped probability-ratio construction comes from Proximal Policy
 Optimization; GRPO adopts it after replacing the learned value baseline with its grouped
 reward baseline \citep{schulman2017ppo}.

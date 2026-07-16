@@ -7,8 +7,50 @@ token actions. The central training unit is therefore a group: one prompt and mu
 sampled response trajectories.
 
 Let $q$ denote a prompt and let
-$o_i=(o_{i,1},\ldots,o_{i,T_i})$ denote sampled response $i$. GRPO performs the following
-high-level loop:
+$o_i=(o_{i,1},\ldots,o_{i,T_i})$ denote sampled response $i$. Using equal trajectory
+weighting, the complete loss studied in this section is
+\begin{equation}
+  \begin{aligned}
+  \mathcal{L}_{\mathrm{GRPO}}(\theta)
+  =-\frac{1}{G}\sum_{i=1}^{G}\frac{1}{T_i}\sum_{t=1}^{T_i}
+  \Big[&\min\!\left(
+      \rho_{i,t}(\theta)A_i,
+      \operatorname{clip}(\rho_{i,t}(\theta),1-\epsilon,1+\epsilon)A_i
+    \right) \\
+    &-\beta\big(\exp(d_{i,t})-d_{i,t}-1\big)\Big].
+  \end{aligned}
+  \label{eq:grpo-full-loss}
+\end{equation}
+Its three constructed quantities are
+\begin{align}
+  A_i
+  &=\frac{r_i-\mu_q}{\sigma_q+\epsilon_A},
+  &\mu_q&=\frac{1}{G}\sum_{j=1}^{G}r_j,
+  &\sigma_q^2&=\frac{1}{G}\sum_{j=1}^{G}(r_j-\mu_q)^2,
+  \label{eq:grpo-overview-advantage}\\
+  \rho_{i,t}(\theta)
+  &=\frac{\pi_\theta(o_{i,t}\mid q,o_{i,<t})}
+          {\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,<t})},
+  \label{eq:grpo-overview-ratio}\\
+  d_{i,t}
+  &=\log\pi_{\mathrm{ref}}(o_{i,t}\mid q,o_{i,<t})
+    -\log\pi_\theta(o_{i,t}\mid q,o_{i,<t}).
+  \label{eq:grpo-overview-kl-difference}
+\end{align}
+Here $G$ is the number of responses sampled for one prompt, $T_i$ is the number of
+trainable tokens in response $i$, and $r_i$ is its scalar reward. The advantage $A_i$
+compares the complete response with the other responses in its group and is reused for
+all of its tokens. The ratio $\rho_{i,t}$ compares the current trainable policy
+$\pi_\theta$ with the frozen behavior policy $\pi_{\mathrm{old}}$ that sampled the token.
+The clipping width $\epsilon$ limits how much the same sampled token can encourage one
+update, while $\epsilon_A$ prevents division by zero when normalizing rewards. The
+quantity $d_{i,t}$ constructs a sampled KL cost relative to a separate frozen reference
+policy $\pi_{\mathrm{ref}}$, and $\beta$ sets the strength of that cost. The leading minus
+sign converts a quantity that should be maximized into a loss minimized by the optimizer.
+
+Equation~\ref{eq:grpo-full-loss} is the map for the rest of the section: first construct
+$A_i$, then derive $\rho_{i,t}$, and finally explain clipping and reference-policy KL.
+Operationally, GRPO performs the following high-level loop:
 \begin{enumerate}
   \item freeze the current model and use that snapshot to sample $G$ responses to the
         same prompt;
