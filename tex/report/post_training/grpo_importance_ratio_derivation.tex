@@ -1,80 +1,81 @@
-\subsection{Deriving the importance ratio}
+\subsection{From expected advantage to the GRPO reward surrogate}
 \label{subsec:grpo-importance-ratio}
 
-This subsection returns to the actual reward term $\rho_{i,t}A_i$ inside
-Equation~\ref{eq:grpo-full-loss}. The probability ratio is not a second reward signal. It
-follows from estimating an expectation under a new policy using actions sampled from an
-old policy. Fix a
-prompt-prefix state $s$ and treat the already computed advantage
-$A_{\mathrm{old}}(s,a)$ as constant. The new policy's expected advantage is
+Begin with the parent objective in Equation~\ref{eq:grpo-parent-expected-advantage}. For a
+fixed prompt, rewrite its expectation using trajectories sampled by the behavior policy:
 \begin{align}
-  J_s(\theta)
-    &= \sum_a \pi_\theta(a\mid s)A_{\mathrm{old}}(s,a) \notag\\
-    &= \sum_a \pi_{\mathrm{old}}(a\mid s)
-       \frac{\pi_\theta(a\mid s)}{\pi_{\mathrm{old}}(a\mid s)}
-       A_{\mathrm{old}}(s,a) \notag\\
-    &= \mathbb{E}_{a\sim\pi_{\mathrm{old}}}
-       \left[\rho_\theta(s,a)A_{\mathrm{old}}(s,a)\right],
+  J_{\mathrm{adv}}(\theta)
+  &=\sum_o \pi_\theta(o\mid q)A_{\mathrm{old}}(q,o) \notag\\
+  &=\sum_o \pi_{\mathrm{old}}(o\mid q)
+    \frac{\pi_\theta(o\mid q)}{\pi_{\mathrm{old}}(o\mid q)}
+    A_{\mathrm{old}}(q,o) \notag\\
+  &=\mathbb{E}_{o\sim\pi_{\mathrm{old}}}
+    \left[w_i(\theta)A_i\right],
   \qquad
-  \rho_\theta(s,a)=\frac{\pi_\theta(a\mid s)}{\pi_{\mathrm{old}}(a\mid s)}.
-  \label{eq:grpo-importance-weighted-expectation}
+  w_i(\theta)=\frac{\pi_\theta(o_i\mid q)}
+                    {\pi_{\mathrm{old}}(o_i\mid q)}.
+  \label{eq:grpo-trajectory-importance-expectation}
 \end{align}
-This is importance weighting, or a change of sampling distribution. The advantage supplies
-the direction and magnitude of preference. The ratio only states how much probability
-mass the new policy assigns to an old-policy sample. It is required wherever
-$\pi_\theta$ is evaluated using data drawn from $\pi_{\mathrm{old}}$.
-
-Consider two actions. Under the old policy, the good action has probability $0.25$ and
-advantage $+3$; the bad action has probability $0.75$ and advantage $-1$. The old expected
-advantage is zero. If the new policy assigns both actions probability $0.5$, its expected
-advantage is one. Importance weighting the old distribution gives exactly the same result:
+This equality is ordinary importance sampling. It changes the distribution used to compute
+the expectation without changing the expectation itself. With $G$ stored trajectories, a
+Monte Carlo estimate of this exact expression is
 \begin{equation}
-  0.25\left(\frac{0.5}{0.25}\right)(3)
-  +0.75\left(\frac{0.5}{0.75}\right)(-1)=1.
-  \label{eq:grpo-importance-weight-example}
+  \widehat J_{\mathrm{trajectory}}(\theta)
+  =\frac{1}{G}\sum_{i=1}^{G}w_i(\theta)A_i.
+  \label{eq:grpo-trajectory-importance-estimator}
 \end{equation}
-Without the ratios, the old samples would still average to zero and would not represent
-the changed policy.
 
-Advantage alone is detached, so $\nabla_\theta A=0$. In the actual GRPO reward term, the
-trainable dependence enters through $\rho_\theta$ in
-Equation~\ref{eq:grpo-importance-weighted-expectation}. When
-$\pi_\theta=\pi_{\mathrm{old}}$, the ratio equals one but its gradient does not vanish:
+For an autoregressive response, the trajectory ratio is a product of token ratios:
 \begin{equation}
-  \nabla_\theta\rho_\theta
-  =\rho_\theta\nabla_\theta\log\pi_\theta.
-  \label{eq:grpo-ratio-gradient}
-\end{equation}
-Thus $\nabla_\theta(\rho A)=A\nabla_\theta\log\pi_\theta$ at the behavior policy. After
-averaging over a trajectory, this is exactly the gradient in
-Equation~\ref{eq:grpo-advantage-weighted-gradient}. Therefore the log-probability
-expression in Section~\ref{subsec:grpo-gradient-direction} was a teaching surrogate for
-the initial gradient, whereas
-$\rho A$ is the quantity that actually appears in the GRPO loss. The two are not added
-together, and GRPO does not multiply $\rho A$ by a separate cross-entropy loss.
-
-Before clipping, the reward contribution for trajectory $i$ is therefore
-\begin{equation}
-  J_i^{\mathrm{reward}}(\theta)
-  =\frac{1}{T_i}\sum_{t=1}^{T_i}\rho_{i,t}(\theta)A_i.
-  \label{eq:grpo-unclipped-reward-objective}
-\end{equation}
-Section~\ref{subsec:grpo-clipped-objective} replaces each $\rho_{i,t}A_i$ with its clipped
-version and restores the
-reference-policy KL term, producing the two pieces inside the brackets of
-Equation~\ref{eq:grpo-full-loss}.
-
-For a complete response, exact change of distribution would use a trajectory ratio:
-\begin{equation}
-  \frac{\pi_\theta(o\mid q)}{\pi_{\mathrm{old}}(o\mid q)}
-  =\prod_{t=1}^{T}
-    \frac{\pi_\theta(o_t\mid q,o_{<t})}
-         {\pi_{\mathrm{old}}(o_t\mid q,o_{<t})}.
+  w_i(\theta)
+  =\prod_{t=1}^{T_i}\rho_{i,t}(\theta),
+  \qquad
+  \rho_{i,t}(\theta)
+  =\frac{\pi_\theta(o_{i,t}\mid q,o_{i,<t})}
+         {\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,<t})}.
   \label{eq:grpo-complete-trajectory-ratio}
 \end{equation}
-The product becomes high-variance for long sequences. GRPO instead holds the behavior
-policy's sampled prefixes fixed and applies a local per-token ratio, broadcasting the
-trajectory advantage across those token terms. This is a local policy-improvement
-surrogate around $\pi_{\mathrm{old}}$, not exact reweighting after an arbitrarily large
-policy change. The resulting per-token quantity is the $\rho_{i,t}$ used in the complete
-loss in Equation~\ref{eq:grpo-full-loss}.
+Up to this point, the connection to the parent objective is exact. The difficulty is that
+a product of many ratios can become extremely small or large, so its variance grows badly
+with response length.
+
+GRPO therefore makes a deliberate surrogate choice: it replaces the single trajectory
+product with an average of local per-token ratios while broadcasting the trajectory
+advantage to every sampled token:
+\begin{equation}
+  J_{\mathrm{reward}}^{\mathrm{GRPO}}(\theta)
+  =\frac{1}{G}\sum_{i=1}^{G}\frac{1}{T_i}\sum_{t=1}^{T_i}
+    \rho_{i,t}(\theta)A_i.
+  \label{eq:grpo-unclipped-reward-objective}
+\end{equation}
+Equation~\ref{eq:grpo-unclipped-reward-objective} is not algebraically equal to the exact
+trajectory estimator in Equation~\ref{eq:grpo-trajectory-importance-estimator}. It is a
+local policy-improvement surrogate chosen to avoid the unstable trajectory-ratio product.
+This is the unclipped reward-driven term that appears inside
+Equation~\ref{eq:grpo-full-loss}.
+
+The surrogate still produces the intended policy-gradient direction near the behavior
+policy. Because
+\begin{equation}
+  \nabla_\theta\rho_{i,t}
+  =\rho_{i,t}\nabla_\theta\log\pi_\theta(o_{i,t}\mid q,o_{i,<t}),
+  \label{eq:grpo-ratio-gradient}
+\end{equation}
+and $\rho_{i,t}=1$ when $\pi_\theta=\pi_{\mathrm{old}}$, its initial gradient is
+\begin{equation}
+  \left.\nabla_\theta J_{\mathrm{reward}}^{\mathrm{GRPO}}\right|_{\pi_\theta=\pi_{\mathrm{old}}}
+  =\frac{1}{G}\sum_{i=1}^{G}\frac{A_i}{T_i}\sum_{t=1}^{T_i}
+    \nabla_\theta\log\pi_\theta(o_{i,t}\mid q,o_{i,<t}).
+  \label{eq:grpo-advantage-weighted-gradient}
+\end{equation}
+A positive $A_i$ therefore increases the log-probabilities of the sampled actions, while
+a negative $A_i$ decreases them. For a positive-advantage response `5 <eos>', both the
+decision to emit `5' and the decision to stop after `5' are reinforced. The factor $1/T_i$
+gives each response equal total normalization rather than automatically giving longer
+responses more weight.
+
+The derivation has now reached the $\rho_{i,t}A_i$ term in the full GRPO formula. The
+remaining modifications are stabilizers: Section~\ref{subsec:grpo-clipped-objective}
+clips this reward surrogate and subtracts the reference-policy KL cost before converting
+the maximization objective into the minimized loss in
+Equation~\ref{eq:grpo-full-loss}.

@@ -57,12 +57,12 @@ sign converts a quantity that should be maximized into a loss minimized by the o
 
 Equation~\ref{eq:grpo-full-loss} is the map for the rest of the section.
 Section~\ref{subsec:grpo-group-advantage} constructs $A_i$.
-Section~\ref{subsec:grpo-gradient-direction} uses a temporary log-probability surrogate
-only to explain the gradient direction; it does not add another term to the loss.
-Section~\ref{subsec:grpo-importance-ratio} derives the actual $\rho_{i,t}A_i$ reward term,
-and Section~\ref{subsec:grpo-clipped-objective} adds clipping and KL before explicitly
-reassembling Equation~\ref{eq:grpo-full-loss}. Operationally, GRPO performs the following
-high-level loop:
+Section~\ref{subsec:grpo-gradient-direction} states the parent objective: increase expected
+advantage under the new policy. Section~\ref{subsec:grpo-importance-ratio} first rewrites
+that objective exactly using a trajectory importance ratio, then identifies the per-token
+ratio objective as GRPO's local surrogate. Section~\ref{subsec:grpo-clipped-objective}
+adds clipping and KL before explicitly reassembling Equation~\ref{eq:grpo-full-loss}.
+Operationally, GRPO performs the following high-level loop:
 \begin{enumerate}
   \item freeze the current model and use that snapshot to sample $G$ responses to the
         same prompt;
