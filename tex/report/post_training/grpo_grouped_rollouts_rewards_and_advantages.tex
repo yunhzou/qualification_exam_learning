@@ -1,0 +1,35 @@
+\subsection{Grouped rollouts, rewards, and relative advantages}
+
+At the beginning of a rollout iteration, freeze the current model as the behavior policy
+$\pi_{\mathrm{old}}$. For each prompt $q$, sample $G$ complete responses:
+\begin{equation}
+  o_1,\ldots,o_G \sim \pi_{\mathrm{old}}(\cdot\mid q).
+  \label{eq:grpo-grouped-rollouts}
+\end{equation}
+Sampling is autoregressive. At token position $t$, the policy conditions on the prompt and
+the already sampled prefix $o_{i,<t}$. No gradient is recorded during this generation
+phase.
+
+A verifier or reward model then assigns one scalar reward $r_i=R(q,o_i)$ to each complete
+response. GRPO converts these rewards into group-relative advantages:
+\begin{equation}
+  A_i
+  = \frac{r_i-\mu_q}{\sigma_q+\epsilon_A},
+  \qquad
+  \mu_q=\frac{1}{G}\sum_{j=1}^{G}r_j,
+  \qquad
+  \sigma_q^2=\frac{1}{G}\sum_{j=1}^{G}(r_j-\mu_q)^2.
+  \label{eq:grpo-group-advantage}
+\end{equation}
+
+For example, suppose four responses are sampled for the prompt ``$2+3$.'' Two responses
+produce the correct answer and receive reward $1.1$; two produce incorrect answers with
+valid formatting and receive reward $0.1$. The group mean is $0.6$ and the population
+standard deviation is $0.5$. The correct trajectories therefore receive advantages near
+$+1$, while the incorrect trajectories receive advantages near $-1$.
+
+The advantage is attached to a complete trajectory. It says that one response performed
+better or worse than other samples for the same prompt. It is not a token-level reward and
+does not yet specify how the model parameters should change. If every response receives
+the same reward, then $\sigma_q=0$ and the prompt provides no relative policy-gradient
+signal; practical implementations explicitly handle this zero-variance case.

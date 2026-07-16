@@ -1,0 +1,39 @@
+\subsection{Rollout buffers and policy versions}
+
+The generated trajectories and their training metadata are held in a short-lived rollout
+buffer. For each response, the buffer normally contains the prompt, exact sampled token
+IDs, behavior-policy log-probabilities, loss masks, reward, advantage, and length. The
+buffer separates generation from optimization without changing which policy generated the
+data.
+
+Three policy names have different meanings:
+\begin{itemize}
+  \item $\pi_{\mathrm{old}}$ is the behavior-policy snapshot that generated the current
+        buffer;
+  \item $\pi_\theta$ is the current trainable policy; and
+  \item $\pi_{\mathrm{ref}}$ is a frozen reference policy used to penalize long-term drift.
+\end{itemize}
+The old policy is provenance for buffered actions. It does not mean that new rollouts
+should ignore an improved current model.
+
+In the cleanest synchronous schedule, set
+$\pi_{\mathrm{old}}\leftarrow\pi_\theta$, generate a buffer, take one full-batch optimizer
+step, discard the buffer, and immediately resample. The ratio is one when that loss is
+evaluated, so clipping is inactive. The ratio gradient in
+Equation~\ref{eq:grpo-ratio-gradient} still produces the ordinary policy gradient.
+
+A system may instead reuse the buffer for several minibatch steps or epochs. The rationale
+is computational: autoregressive rollout generation is sequential and may also wait for
+tools or verifiers, whereas another training pass over stored tokens may be cheaper. After
+the first optimizer step, however, $\pi_\theta$ has changed while the data still came from
+$\pi_{\mathrm{old}}$. Ratios then measure the mismatch created by reuse. Reuse creates no
+new information and may overfit sampled trajectories, stale their advantages, and push
+many ratios into the clipped region. It is an optional compute tradeoff, not a requirement
+of GRPO.
+
+This short-lived rollout buffer should not be confused with DQN's long-lived experience
+replay \citep{mnih2015dqn}. DQN stores transitions from many policy versions and uses
+off-policy Q-learning to reuse them broadly; random sampling also breaks temporal
+correlations. PPO and GRPO normally keep data only from the current or very recent
+behavior policy and discard it after limited optimization. Their buffer amortizes rollout
+cost while attempting to remain approximately on-policy.

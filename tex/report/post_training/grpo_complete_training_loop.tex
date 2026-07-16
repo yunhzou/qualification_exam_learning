@@ -1,0 +1,29 @@
+\subsection{Complete GRPO training loop}
+
+One synchronous GRPO iteration proceeds chronologically as follows:
+\begin{enumerate}
+  \item Copy the current policy version into the behavior policy
+        $\pi_{\mathrm{old}}$.
+  \item For every prompt, sample $G$ response trajectories from
+        $\pi_{\mathrm{old}}$ without recording gradients.
+  \item Store the exact sampled token IDs and their behavior-policy log-probabilities.
+  \item Score every complete trajectory and compute its group-relative advantage using
+        Equation~\ref{eq:grpo-group-advantage}.
+  \item Replay the stored trajectories through $\pi_\theta$ with teacher forcing and
+        gather the current log-probabilities of the sampled actions.
+  \item Compute token ratios, clipped advantage terms, and reference-policy KL penalties
+        using Equations~\ref{eq:grpo-token-ratio}--\ref{eq:grpo-token-objective}.
+  \item Apply the response-token mask and reduce all valid token terms to one scalar loss.
+  \item Run backpropagation, optionally clip the parameter-gradient norm, and take an
+        optimizer step.
+  \item If the configuration reuses the buffer, repeat Steps 5--8 for the selected
+        minibatches or epochs. Otherwise discard it immediately.
+  \item Discard the completed buffer, refresh the behavior policy from the updated
+        $\pi_\theta$, and generate fresh trajectories.
+\end{enumerate}
+
+The rollout phase and optimization phase perform different computations. Rollout samples
+one token at a time and stores the realized actions. Optimization does not sample a second
+response; it teacher-forces the stored response so that the probabilities of those exact
+actions can be differentiated. Changing tokenization, deleting an action, or substituting
+a reconstructed response would change the trajectory being optimized.

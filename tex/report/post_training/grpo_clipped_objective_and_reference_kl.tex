@@ -1,0 +1,50 @@
+\subsection{Clipped objective and reference-policy KL}
+
+For sampled token $o_{i,t}$, recompute its log-probability under the current policy and
+form the per-token ratio
+\begin{equation}
+  \rho_{i,t}(\theta)
+  =\exp\!\left(
+      \log\pi_\theta(o_{i,t}\mid q,o_{i,<t})
+      -\log\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,<t})
+    \right).
+  \label{eq:grpo-token-ratio}
+\end{equation}
+GRPO uses PPO's clipped surrogate:
+\begin{equation}
+  S_{i,t}(\theta)
+  =\min\!\left(
+      \rho_{i,t}A_i,
+      \operatorname{clip}(\rho_{i,t},1-\epsilon,1+\epsilon)A_i
+    \right).
+  \label{eq:grpo-clipped-surrogate}
+\end{equation}
+
+Suppose $\epsilon=0.2$. For a positive advantage $A_i=1.5$ and ratio $\rho=1.5$, the raw
+term is $2.25$, while the clipped candidate is $1.2(1.5)=1.8$; the minimum selects $1.8$.
+The sampled action receives no additional credit for becoming more than $20\%$ more likely.
+For a negative advantage $A_i=-1$ and ratio $\rho=0.5$, the raw term is $-0.5$ and the
+clipped candidate is $-0.8$; the minimum selects $-0.8$. Reducing the probability farther
+than the lower boundary earns no additional improvement. The sign-sensitive minimum caps
+excess movement in the desired direction but does not hide movement in the wrong direction.
+
+Clipping controls movement relative to the behavior policy for the current buffer. A
+separate frozen reference policy limits cumulative drift from the model that began the RL
+stage. Using the sampled-action KL estimator common in this objective family, define
+\begin{equation}
+  d_{i,t}
+  =\log\pi_{\mathrm{ref}}(o_{i,t}\mid q,o_{i,<t})
+   -\log\pi_\theta(o_{i,t}\mid q,o_{i,<t}),
+  \qquad
+  \widehat D_{i,t}=\exp(d_{i,t})-d_{i,t}-1.
+  \label{eq:grpo-sampled-kl}
+\end{equation}
+The token objective is
+\begin{equation}
+  J_{i,t}^{\mathrm{GRPO}}(\theta)
+  =S_{i,t}(\theta)-\beta\widehat D_{i,t}.
+  \label{eq:grpo-token-objective}
+\end{equation}
+The implementation minimizes the negative mean of this quantity over trainable response
+tokens. The clipping coefficient $\epsilon$ controls short-term reuse of one behavior
+batch; the KL coefficient $\beta$ controls long-term movement from the reference model.

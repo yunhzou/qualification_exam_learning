@@ -1,0 +1,40 @@
+\subsection{How a trajectory advantage drives optimization}
+
+To isolate the role of the advantage, first omit importance ratios, clipping, and KL
+control. Replay sampled trajectory $i$ through the trainable model with teacher forcing
+and retrieve the log-probability of every sampled token. A simple trajectory objective is
+\begin{equation}
+  J_i(\theta)
+  = A_i\frac{1}{T_i}\sum_{t=1}^{T_i}
+    \log\pi_\theta(o_{i,t}\mid q,o_{i,<t}),
+  \qquad
+  \mathcal{L}_i=-J_i.
+  \label{eq:grpo-basic-trajectory-objective}
+\end{equation}
+The advantage is computed before optimization and treated as a detached constant. Its
+effect becomes clear by differentiating:
+\begin{equation}
+  \nabla_\theta J_i
+  = A_i\frac{1}{T_i}\sum_{t=1}^{T_i}
+    \nabla_\theta\log\pi_\theta(o_{i,t}\mid q,o_{i,<t}).
+  \label{eq:grpo-advantage-weighted-gradient}
+\end{equation}
+
+If $A_i>0$, gradient ascent on $J_i$ increases the log-probabilities of the sampled
+actions. Because training software minimizes $\mathcal{L}_i=-J_i$, the optimizer produces
+the same direction. If $A_i<0$, the sign reverses and the sampled actions become less
+likely. If $A_i=0$, the trajectory contributes no reward-driven gradient.
+
+For a positive-advantage response `5 <eos>', the sampled `5' is reinforced under the
+original prompt and the sampled end token is reinforced under the prefix containing `5'.
+For a negative-advantage response `4 <eos>', both sampled decisions are suppressed. The
+same trajectory advantage is broadcast over the token positions, but each token has a
+different conditional probability and therefore a different parameter gradient.
+
+The Transformer parameters are shared across all positions and examples. Training does
+not independently edit a stored probability for each token. The batch loss adds the
+weighted gradients from every sampled action; those contributions may agree or conflict,
+and one parameter update changes behavior in many unobserved contexts. The factor
+$1/T_i$ gives each trajectory equal total normalization. A global mean over all valid
+tokens instead gives longer responses more influence, so the reduction rule must be stated
+when trajectories have different lengths.

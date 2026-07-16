@@ -1,0 +1,28 @@
+\subsection{GRPO background and algorithm overview}
+
+Group Relative Policy Optimization is a policy-gradient algorithm used in the
+reinforcement-learning stages of DeepSeek-R1 \citep{guo2025deepseekr1}. It retains the
+clipped policy update of Proximal Policy Optimization (PPO) but replaces PPO's learned
+value critic with comparisons among several responses to the same prompt
+\citep{schulman2017ppo}. The central training unit is therefore a group: one prompt and
+multiple sampled response trajectories.
+
+Let $q$ denote a prompt and let
+$o_i=(o_{i,1},\ldots,o_{i,T_i})$ denote sampled response $i$. GRPO performs the following
+high-level loop:
+\begin{enumerate}
+  \item sample $G$ responses to the same prompt from a behavior policy;
+  \item assign one reward to each complete response;
+  \item compare rewards within the group to obtain one advantage per response;
+  \item replay the sampled tokens through the trainable policy;
+  \item increase the probabilities of actions from positive-advantage responses and
+        decrease those from negative-advantage responses;
+  \item clip large changes relative to the behavior policy and penalize drift from a
+        frozen reference policy; and
+  \item update the model and generate a new rollout group.
+\end{enumerate}
+
+The next modules unpack these steps in exactly this order. The initial explanation assumes
+a synchronous learner and a simple response containing only model-generated tokens.
+Rollout buffers, asynchronous workers, and agentic trace construction are introduced only
+after the basic update is established.

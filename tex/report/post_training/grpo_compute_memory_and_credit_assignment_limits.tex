@@ -1,0 +1,34 @@
+\subsection{Compute, storage, and algorithmic limitations}
+
+GRPO adds three major costs beyond an ordinary language-model training step. First,
+grouped rollout generation requires $G$ autoregressive responses per prompt and is
+sequential across the tokens of each response. Second, reward computation may require
+verifiers, reward models, tools, or external environments. Third, optimization requires a
+current-policy forward and backward pass over the stored response tokens, plus forward
+evaluation of the reference policy if reference log-probabilities were not precomputed.
+
+For $M$ stored response tokens, the rollout buffer requires $O(M)$ token-level storage for
+action IDs, old log-probabilities, masks, and optionally reference log-probabilities. Rewards
+and advantages require only one scalar per trajectory before broadcasting. The trainable
+policy carries parameters, gradients, and optimizer states. The reference policy is frozen
+and needs no gradients or optimizer states. A separate old-policy model is unnecessary
+when the behavior log-probabilities of the sampled actions have been stored exactly.
+
+The basic GRPO update has several limitations:
+\begin{itemize}
+  \item one outcome advantage is broadcast across every trainable action, so it cannot
+        identify which reasoning step caused success or failure;
+  \item prompts whose sampled responses all receive the same reward provide no relative
+        advantage signal;
+  \item larger groups improve the reward baseline but increase rollout cost;
+  \item the token-reduction rule determines whether long trajectories contribute more
+        total gradient than short trajectories;
+  \item buffer reuse and asynchronous lag make advantages and sampled prefixes stale; and
+  \item imperfect verifiers can reward formatting shortcuts or other reward-hacking
+        behavior rather than the intended reasoning process.
+\end{itemize}
+
+These limitations motivate later methods for process supervision, learned critics, and
+agentic trace construction. They do not change the basic GRPO derivation; they change the
+quality and granularity of the training signal or the validity of the trajectory supplied
+to it.

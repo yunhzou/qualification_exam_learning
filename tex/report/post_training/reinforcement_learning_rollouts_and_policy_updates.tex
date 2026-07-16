@@ -1,9 +1,14 @@
-\section{Reinforcement learning}
-This section begins with the unit that an agentic RL system actually trains. The later
-algorithmic development introduces language-model generation as a policy, follows a
-trajectory-level advantage into the token gradients, and distinguishes short-lived rollout
-buffers from long-lived experience replay. Later modules will develop critics and
-process-level credit assignment.
+\section{Reinforcement learning with GRPO}
+This section develops Group Relative Policy Optimization (GRPO) in the order that the
+algorithm executes. It begins with grouped rollout generation and ends with the systems
+issues that arise when the same update is distributed across asynchronous workers.
 
-\input{tex/report/post_training/agentic_rl_trace_boundaries_and_token_fidelity}
-\input{tex/report/post_training/grpo_trajectory_advantages_and_rollout_buffers}
+\input{tex/report/post_training/grpo_background_and_algorithm_overview}
+\input{tex/report/post_training/grpo_grouped_rollouts_rewards_and_advantages}
+\input{tex/report/post_training/grpo_trajectory_advantage_policy_gradient}
+\input{tex/report/post_training/grpo_importance_ratio_derivation}
+\input{tex/report/post_training/grpo_rollout_buffer_and_policy_versions}
+\input{tex/report/post_training/grpo_clipped_objective_and_reference_kl}
+\input{tex/report/post_training/grpo_complete_training_loop}
+\input{tex/report/post_training/grpo_synchronous_and_asynchronous_execution}
+\input{tex/report/post_training/grpo_compute_memory_and_credit_assignment_limits}
