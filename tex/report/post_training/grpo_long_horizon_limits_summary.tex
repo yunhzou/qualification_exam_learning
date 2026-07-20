@@ -21,19 +21,7 @@ rewards and critics try to localize progress, while on-policy distillation provi
 teacher feedback on states encountered by the student. Each adds information that a
 terminal group comparison does not contain.
 
-\subsection{Why GLM-5.2 moves to individual-rollout PPO}
-
-GLM-5.2 cites a different problem. Compaction splits each long coding rollout into a
-variable number of unequal sub-traces, so a same-prompt GRPO group becomes a ragged
-collection. It therefore replaces group-relative advantages with critic-based PPO: each
-rollout trains independently, the critic supplies token-level advantages, and a token-level
-loss addresses length imbalance \citep{glm52team2026}. This removes the sibling sampling
-needed to estimate a GRPO baseline, not rollout sampling, and densifies credit even when
-the external reward remains terminal. Anti-hacking is separate: rules and an LLM judge
-screen suspicious tool calls, and a blocked call receives dummy information so its rollout
-can continue.
-
-\subsection{Why reconstructed context can invalidate a policy ratio}
+\subsection{Context compaction creates multiple training traces}
 
 A separate problem arises when an agent harness changes the context between model calls.
 Consider a computer-use policy that keeps only its last two screenshots. At round one it
@@ -59,6 +47,16 @@ starts a new trace when a valid prefix cannot be preserved \citep{glm5team2026,x
 Only after those boundaries are correct does reward allocation become a separate choice.
 The valid traces may share one terminal reward or advantage, or receive distinct rewards;
 neither choice repairs an invalid conditioning context.
+
+The required split also changes the shape of the training batch. One compacted coding
+rollout may now produce several valid traces, while another produces fewer traces of very
+different lengths. GLM-5.2 treats this ragged multi-trace structure as the reason to move
+from same-prompt group comparison to critic-based PPO: each rollout can train
+independently, the critic estimates token-level advantages, and a token-level loss handles
+length imbalance \citep{glm52team2026}. Thus compaction creates two connected problems.
+Exact per-call contexts are required to keep every trace on-policy; after those traces are
+constructed correctly, the critic supplies localized credit without requiring equal-sized
+GRPO sibling groups.
 
 Composer 2 exhibits the same structural situation through learned self-summarization: one
 task may contain multiple model generations chained through summaries, and its report
