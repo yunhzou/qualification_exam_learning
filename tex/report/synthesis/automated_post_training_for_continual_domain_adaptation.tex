@@ -1,12 +1,14 @@
 \section{Automated post-training as continual domain adaptation}
 
-The human-learning analogy suggests a closed loop rather than one final training run. A
-learner studies available material, tests themselves, identifies what remains unknown,
-builds targeted practice, and tests again. For an LLM agent, the corresponding loop begins
-with an externally anchored objective or domain. The system creates diagnostic tasks,
-attempts them, analyzes failures, synthesizes a curriculum, and repeats. Post-training
-becomes continual learning when verified experience changes the policy while earlier
-capabilities are retained, rather than merely appending another isolated fine-tune.
+The human-learning analogy suggests a closed loop: study, test, diagnose what remains
+unknown, build targeted practice, and test again. An unfamiliar domain is not empty;
+textbooks, literature, manuals, worked examples, and historical records supply accumulated
+knowledge and reference evidence. The model need not know the domain parametrically: it
+can read these sources in context and construct curricula with checks from worked answers,
+cross-source evidence, or executable procedures. Once verified, continual post-training
+internalizes that contextual competence while retaining earlier capabilities. In-context
+learning therefore bootstraps the curriculum, while post-training provides continual
+learning and domain adaptation rather than another isolated fine-tune.
 
 Figure~\ref{fig:auto-post-training-loop} captures the proposed control loop. Its most
 important decision is the reflection step: a failed attempt may reveal a local mistake, a
