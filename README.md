@@ -23,6 +23,7 @@ The concrete milestones and handbook-based exam constraints are recorded in [GOA
 - `papers/`: local paper PDFs (ignored by Git to avoid redistributing copyrighted files).
 - `notes/`: working reading and learning notes.
 - `experiments/`: code and results from post-training exercises.
+- `figures/`: report illustrations and conceptual diagrams.
 - `scripts/build.py`: reproducible Tectonic build command.
 - `scripts/bootstrap.ps1`: Windows setup for the Python environment and pinned Tectonic binary.
 

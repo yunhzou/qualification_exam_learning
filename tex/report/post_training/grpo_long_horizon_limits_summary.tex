@@ -16,3 +16,35 @@ process reward models and critics attempt to localize progress, while on-policy
 distillation supplies dense teacher feedback on the student's encountered states. They are
 not merely alternative optimizers; they add information that terminal group comparison
 does not contain.
+
+Composer 2 provides a concrete compaction case. Its agent learns to emit self-summaries
+during long tasks, and one rollout may contain several model generations chained through
+those summaries. The report assigns the final task reward to all model-produced tokens in
+the chain, so the pre- and post-summary generations share one terminal outcome signal
+\citep{cursor2026composer2}. If the post-summary request no longer preserves the original
+token prefix, Polar's provenance rule would represent the generations as separate unit
+traces rather than reconstructing one false continuous sequence. This makes Composer 2
+Polar-like at the trace-boundary level, although the report does not specify whether its
+normalized advantage is computed once for the whole chain or separately for each chunk.
+
+Figure~\ref{fig:computer-use-grpo-trace-chunks} illustrates the distinction in a
+computer-use task. Screenshot pruning or context replacement makes naive whole-session
+training condition later actions on observations the policy did not actually see. A
+chunked construction preserves each model call's realized context while allowing a shared
+terminal reward to credit the chain.
+
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=0.96\textwidth]{figures/PreviousGRPO.png}
+
+  \vspace{4mm}
+
+  \includegraphics[width=0.96\textwidth]{figures/ChunkGRPO_PolarLike.png}
+  \caption{Conceptual computer-use comparison. Top: treating a context-managed session as
+  one uninterrupted GRPO sequence can train on a prefix that was never observed by the
+  acting policy. Bottom: a Polar-like construction splits the session at context changes,
+  masks unavailable history, and retains the shared terminal outcome signal across
+  provenance-valid chunks. The diagrams are explanatory illustrations, not figures from
+  the cited reports.}
+  \label{fig:computer-use-grpo-trace-chunks}
+\end{figure}
