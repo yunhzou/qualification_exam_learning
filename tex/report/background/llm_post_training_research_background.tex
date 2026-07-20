@@ -17,6 +17,18 @@ requires exact provenance for model actions when tool responses, context replace
 parallel branches, or asynchronous workers separate the optimized policy from the policy
 that generated the data \citep{lightman2023verify,xu2026polar,glm5team2026}.
 
+Model training and harness engineering are complementary. Search and verification can
+extract much more from a fixed model: Jeremy Berman's ARC harness raised Claude Sonnet 3.5
+from $14\%$ to $53.6\%$, but used as many as 500 candidate transforms and 31 prompts per
+task \citep{kamradt2024arcprogress}. Post-training instead changes the proposal policy and
+can raise its effective ceiling across harnesses. o3-preview reached $75.7\%$ on ARC-AGI-1
+within the leaderboard compute limit; OpenAI links the o3 family to scaled reinforcement
+learning \citep{chollet2024o3arc,openai2025o3}. This is not clean out-of-distribution
+evidence because o3-preview trained on $75\%$ of ARC's public training set, although its
+evaluation tasks remained private. The cautious lesson is that reasoning post-training
+made ARC-like transformations more reachable, while the harness remained an important
+multiplier.
+
 This paper first establishes the minimum Transformer and SFT background needed for the
 later comparison. It then develops policy-gradient RL and GRPO, followed by on-policy
 distillation and a synthesis of when demonstrations, outcome rewards, process feedback,
