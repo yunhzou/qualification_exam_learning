@@ -23,7 +23,9 @@ prompt and uses their reward statistics:
 \begin{equation}
   A_i=\frac{r_i-\mu_q}{\sigma_q+\epsilon_A},
   \qquad
-  \mu_q=\frac{1}{G}\sum_j r_j.
+  \mu_q=\frac{1}{G}\sum_j r_j,
+  \qquad
+  \sigma_q^2=\frac{1}{G}\sum_j(r_j-\mu_q)^2.
   \label{eq:compact-grpo-advantage}
 \end{equation}
 The group forms a small tournament: above-average attempts are reinforced and
