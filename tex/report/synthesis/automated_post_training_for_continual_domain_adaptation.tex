@@ -11,10 +11,10 @@ capabilities are retained, rather than merely appending another isolated fine-tu
 Figure~\ref{fig:auto-post-training-loop} captures the proposed control loop. Its most
 important decision is the reflection step: a failed attempt may reveal a local mistake, a
 missing capability, a harness defect, or an unreliable evaluator. Only a genuine capability
-gap should trigger training. The corrected loop splits curriculum tasks from protected
-evaluation, converts diagnosed gaps into verified demonstrations, rewards, or textual
-hints, updates a versioned policy through SFT, RL, or distillation, and promotes the
-candidate only after new-domain and retention tests pass.
+gap should trigger training. The loop converts diagnosed gaps into curriculum material,
+updates the model through continual post-training, evaluates the resulting capability,
+and then retries the original task. In an implementation, curriculum practice must remain
+separate from the protected domain and retention tests used to accept an update.
 
 \input{tex/report/synthesis/automated_continual_post_training_loop_figure}
 
