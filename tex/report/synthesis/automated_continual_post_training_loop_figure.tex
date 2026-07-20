@@ -1,0 +1,96 @@
+\begin{figure}[p]
+  \centering
+  \resizebox{0.96\textwidth}{!}{%
+  \begin{tikzpicture}[
+      node distance=4mm and 8mm,
+      flow/.style={-Latex, semithick, draw=black!70},
+      loop/.style={-Latex, semithick, draw=blue!60!black},
+      oversight/.style={-Latex, semithick, dashed, draw=violet!70},
+      box/.style={draw=black!60, rounded corners=2pt, align=center,
+                  font=\scriptsize, minimum height=7.5mm, text width=4.2cm,
+                  inner sep=2.5pt},
+      anchorbox/.style={box, fill=violet!10, draw=violet!65, text width=5.4cm},
+      taskbox/.style={box, fill=cyan!8, draw=cyan!55!black, text width=3.9cm},
+      diagnosebox/.style={box, fill=yellow!14, draw=yellow!45!black},
+      trainbox/.style={box, fill=green!9, draw=green!50!black},
+      evalbox/.style={box, fill=blue!7, draw=blue!55!black},
+      sidebox/.style={box, fill=black!3, text width=3.3cm},
+      label/.style={font=\scriptsize, fill=white, inner sep=1pt}
+    ]
+    \node[anchorbox] (objective)
+      {Externally anchored objective, domain sources, and success criteria};
+    \node[box, below=of objective] (current) {Current policy $\pi_k$ + agent harness};
+    \node[taskbox, below=of current, text width=5.4cm] (generate)
+      {Generate diagnostic tasks from observed failures and target capabilities};
+
+    \node[taskbox, below left=6mm and 4mm of generate] (curriculum)
+      {Adaptation pool\\training and practice tasks};
+    \node[evalbox, below right=6mm and 4mm of generate, text width=3.9cm] (protected)
+      {Protected evidence\\domain tests + retention suite};
+
+    \node[box, below=7mm of curriculum] (attempt)
+      {Attempt adaptation tasks and record exact traces};
+    \node[diagnosebox, below=of attempt] (diagnose)
+      {Verify outcomes and diagnose root cause};
+    \node[sidebox, left=7mm of diagnose] (local)
+      {Local mistake, harness defect, or evaluator failure\\repair and retry without training};
+    \node[trainbox, below=of diagnose] (gap)
+      {Evidence of a genuine capability or knowledge gap};
+    \node[trainbox, below=of gap] (signals)
+      {Synthesize and validate supervision\\demonstrations $\mid$ rewards $\mid$ semantic hints};
+    \node[trainbox, below=of signals] (posttrain)
+      {Continual post-training\\SFT $\mid$ RL $\mid$ OPD $\mid$ MOPD};
+    \node[box, below=of posttrain] (candidate) {Candidate policy $\pi_{k+1}$};
+
+    \node[evalbox, right=9mm of candidate] (evaluate)
+      {Evaluate candidate on protected domain and retention tests};
+    \node[evalbox, below=of evaluate] (decision)
+      {Verified improvement with acceptable retention?};
+    \node[sidebox, below left=6mm and 5mm of decision] (rollback)
+      {No\\rollback and revise diagnosis, data, or objective};
+    \node[trainbox, below right=6mm and 5mm of decision, text width=3.3cm] (promote)
+      {Yes\\promote $\pi_{k+1}$ and begin the next gap-discovery cycle};
+
+    \node[anchorbox, above=5mm of objective] (human)
+      {Human oversight at objective, uncertain diagnoses, and promotion gates};
+
+    \draw[flow] (objective) -- (current);
+    \draw[flow] (current) -- (generate);
+    \draw[flow] (generate) -- (curriculum);
+    \draw[flow] (generate) -- (protected);
+    \draw[flow] (curriculum) -- (attempt);
+    \draw[flow] (attempt) -- (diagnose);
+    \draw[flow] (diagnose) -- node[label, right] {capability gap} (gap);
+    \draw[flow] (gap) -- (signals);
+    \draw[flow] (signals) -- (posttrain);
+    \draw[flow] (posttrain) -- (candidate);
+    \draw[flow] (candidate) -- (evaluate);
+    \draw[flow] (protected) |- (evaluate);
+    \draw[flow] (evaluate) -- (decision);
+    \draw[flow] (decision) -- (rollback);
+    \draw[flow] (decision) -- (promote);
+
+    \draw[flow] (diagnose) --
+      node[label, midway, above, align=center, text width=1.35cm] {not a\\model gap}
+      (local);
+    \draw[loop] (local.north) |- node[label, near start] {repair} (attempt.west);
+    \draw[loop] (rollback.west) -| (diagnose.south west);
+    \draw[loop] (promote.east) |- (current.east);
+
+    \draw[oversight] (human) -- (objective);
+    \draw[oversight] (human.east) -- ++(4mm,0) |- (diagnose.east);
+    \draw[oversight] (human.east) -- ++(4mm,0) |- (decision.east);
+
+    \node[draw=black!35, dashed, rounded corners=2pt,
+          fit=(curriculum)(protected), inner sep=3mm] (split) {};
+    \node[label, anchor=south] at (split.north)
+      {adaptation data and evaluation evidence remain separate};
+  \end{tikzpicture}
+  }
+  \caption{Proposed automated continual post-training loop. Diagnosed capability gaps are
+  converted into validated supervision and a versioned policy update. The candidate is
+  promoted only if it improves a protected domain evaluation while retaining earlier
+  capabilities; otherwise the system rolls back and revises the diagnosis or curriculum.
+  This is a conceptual proposal, not a reproduced training system.}
+  \label{fig:auto-post-training-loop}
+\end{figure}

@@ -11,24 +11,12 @@ capabilities are retained, rather than merely appending another isolated fine-tu
 Figure~\ref{fig:auto-post-training-loop} captures the proposed control loop. Its most
 important decision is the reflection step: a failed attempt may reveal a local mistake, a
 missing capability, a harness defect, or an unreliable evaluator. Only a genuine capability
-gap should trigger new training data. The current ``augment memory'' box must also be read
-carefully. Storing a document in retrieval memory changes the harness context; it does not
-change model parameters. Automated post-training additionally needs an explicit path from
-the diagnosed gap to verified demonstrations, rewards, or textual hints, then to an SFT,
-RL, or distillation update of a versioned policy.
+gap should trigger training. The corrected loop splits curriculum tasks from protected
+evaluation, converts diagnosed gaps into verified demonstrations, rewards, or textual
+hints, updates a versioned policy through SFT, RL, or distillation, and promotes the
+candidate only after new-domain and retention tests pass.
 
-\begin{figure}[p]
-  \centering
-  \includegraphics[height=0.72\textheight,width=0.95\textwidth,keepaspectratio]
-    {figures/auto_post_train.png}
-  \caption{Proposed self-testing and adaptation loop. An external objective anchors task
-  generation; failures are reflected into retryable mistakes or curriculum-building
-  knowledge gaps; practice then tests whether the gap was resolved. For automated
-  post-training, ``augment memory'' must distinguish external retrieval memory from a
-  verified data-generation and policy-update path. This is a conceptual proposal, not a
-  reproduced training system.}
-  \label{fig:auto-post-training-loop}
-\end{figure}
+\input{tex/report/synthesis/automated_continual_post_training_loop_figure}
 
 Self-benchmarking creates the main reliability problem. If one model generates the tasks,
 answers them, judges them, and trains on them, the loop can reward its own misconceptions,
