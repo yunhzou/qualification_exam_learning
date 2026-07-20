@@ -1,0 +1,22 @@
+\subsection{Behavior cloning and response masking}
+
+SFT presents a condition and an expert continuation, then increases the continuation's
+probability. A chat template first serializes system, user, assistant, and tool turns into
+one causal token sequence. Prompt and tool tokens remain visible as context, but a
+response-only mask normally assigns direct loss only to assistant tokens. If $m_{b,t}$
+marks those targets and $M=\sum_{b,t}m_{b,t}$, the loss is
+\begin{equation}
+  \mathcal{L}_{\mathrm{SFT}}
+  =-\frac{1}{M}\sum_{b,t}m_{b,t}
+    \log p_\theta(y_{b,t+1}\mid y_{b,\leq t}).
+  \label{eq:sft-loss}
+\end{equation}
+This is ordinary next-token cross-entropy with target selection, not a new model
+architecture. $M$ counts supervised tokens rather than padded sequence length. Masking
+does not avoid the forward computation for prompt context; it only decides which predicted
+positions contribute directly to the scalar loss.
+
+Token averaging gives a long assistant response more total influence than a short one.
+Per-example averaging, task-balanced sampling, or explicit weights encode different
+choices about whether tokens, demonstrations, or tasks should be equal units. Packing and
+length-grouped batching improve utilization but do not change this statistical weighting.

@@ -1,0 +1,35 @@
+\subsection{Computation, training, and inference}
+
+Token IDs are mapped to learned vectors and combined with position information. Each
+decoder block applies normalization, causal self-attention, a residual update, a token-wise
+MLP, and another residual update. Causality prevents position $t$ from reading later
+tokens. A final vocabulary projection produces one next-token distribution at every
+position. For batch size $B$, sequence length $T$, width $D$, and $L$ layers, dense block
+projections scale approximately as $O(LBTD^2)$, while pairwise attention scales as
+$O(LBT^2D)$. Training memory includes parameters, gradients, optimizer states, and saved
+activations; straightforward attention additionally materializes a quadratic $T\times T$
+score matrix.
+
+During training, a complete sequence is available at once. If the tokens are
+\texttt{[BOS, I, like, tea, EOS]}, the model predicts \texttt{I}, \texttt{like},
+\texttt{tea}, and \texttt{EOS} in parallel under a causal mask. The ordinary language-
+model loss is
+\begin{equation}
+  \mathcal{L}_{\mathrm{LM}}
+  =-\frac{1}{BT}\sum_{b,t}log p_\theta(x_{b,t+1}\mid x_{b,\leq t}).
+  \label{eq:compact-next-token-loss}
+\end{equation}
+The factor $1/T$ normalizes many token predictions; it does not mean the model performs
+only one prediction. Parallel teacher forcing is precisely why training can learn from all
+$T$ positions in one forward pass.
+
+Inference executes the same model differently because the next token does not exist until
+the preceding token has been sampled. A prefill pass processes the prompt and stores each
+layer's keys and values. Each decoding step then computes only the new token's query, key,
+and value and attends to the cached prefix. Without this key--value cache, generating token
+$4097$ after a 4096-token prompt would recompute the unchanged first 4096 positions; the
+same duplication would grow at every later step. The cache removes that repeated prefix
+projection at the cost of storing approximately $2LTD$ key and value elements per active
+sequence. This distinction matters in post-training because optimization uses parallel
+teacher-forced passes, while rollout generation is sequential and often dominates RL
+wall-clock time.

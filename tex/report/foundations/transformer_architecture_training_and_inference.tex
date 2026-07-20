@@ -1,13 +1,8 @@
 \section{The decoder-only Transformer}
 
-This section follows one token sequence through a decoder-only Transformer. The order is
-deliberate: first the complete computation graph, then each component and its cost, then
-the different ways the same model is executed for training and inference.
+Only the architecture, training path, and inference behavior needed for the later
+post-training discussion are summarized here. Detailed component derivations remain in
+the repository's learning modules.
 
 \input{tex/report/foundations/decoder_only_transformer_architecture_graph}
-\input{tex/report/foundations/token_and_position_representations}
-\input{tex/report/foundations/causal_self_attention_computation_and_memory}
-\input{tex/report/foundations/decoder_block_mlp_normalization_and_residuals}
-\input{tex/report/foundations/language_model_output_head}
-\input{tex/report/foundations/next_token_transformer_training}
-\input{tex/report/foundations/kv_cached_autoregressive_inference}
+\input{tex/report/foundations/transformer_training_and_inference_summary}

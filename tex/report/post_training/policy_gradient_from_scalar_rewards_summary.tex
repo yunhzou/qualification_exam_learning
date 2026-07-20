@@ -1,0 +1,33 @@
+\subsection{From a black-box judgment to a gradient}
+
+An RL rollout produces a response and one scalar judgment. The checker supplies no
+corrected tokens and no derivative, so the model can only reweight its own sampled
+behavior: make successful decisions more probable and unsuccessful decisions less
+probable. Differentiating expected reward gives the policy-gradient identity
+\begin{equation}
+  \nabla_\theta J
+  =\mathbb{E}_{o\sim\pi_\theta}
+    \left[A(o)\nabla_\theta\log\pi_\theta(o\mid q)\right].
+  \label{eq:compact-policy-gradient}
+\end{equation}
+The log-probability is not an arbitrary loss. It is the sample-based derivative of ``put
+more probability on behavior with positive advantage.'' For an autoregressive response,
+$\log\pi_\theta(o\mid q)$ is the sum of its conditional token log-probabilities, so one
+outcome advantage is broadcast across the sampled token decisions.
+
+Raw reward is a noisy direction because its meaning depends on the prompt. Advantage
+subtracts the reward expected in the same situation: an $8$ is good when the policy
+usually scores $2$ and bad when it usually scores $9$. PPO commonly estimates this
+baseline with a learned value function. GRPO instead samples $G$ sibling responses to one
+prompt and uses their reward statistics:
+\begin{equation}
+  A_i=\frac{r_i-\mu_q}{\sigma_q+\epsilon_A},
+  \qquad
+  \mu_q=\frac{1}{G}\sum_j r_j.
+  \label{eq:compact-grpo-advantage}
+\end{equation}
+The group forms a small tournament: above-average attempts are reinforced and
+below-average attempts are suppressed. This avoids training a critic but pays for several
+rollouts per prompt and retains Monte Carlo noise. Division by the group standard deviation
+equalizes reward scale across prompts; it is a weighting heuristic rather than a necessary
+property of baseline subtraction.

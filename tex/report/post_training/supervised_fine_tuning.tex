@@ -1,13 +1,8 @@
 \section{Supervised fine-tuning}
 
-The Transformer section explains how a causal language model is trained. Supervised
-fine-tuning (SFT) keeps that architecture and next-token machinery, but changes the data
-distribution and, usually, which token targets contribute to the loss. The central
-question is therefore not how to invent a new model objective, but how to convert desired
-behavior into precise token-level supervision.
+SFT keeps the Transformer's next-token objective but applies it to curated demonstrations.
+Only the loss construction and the limits needed for comparison with later methods are
+included here.
 
-\input{tex/report/post_training/sft_as_behavior_cloning}
-\input{tex/report/post_training/sft_chat_serialization_and_role_masks}
-\input{tex/report/post_training/sft_response_only_objective}
-\input{tex/report/post_training/sft_training_algorithm_compute_and_storage}
-\input{tex/report/post_training/sft_generalization_and_conditioning_limits}
+\input{tex/report/post_training/sft_behavior_cloning_and_masked_loss_summary}
+\input{tex/report/post_training/sft_capabilities_and_limits_summary}

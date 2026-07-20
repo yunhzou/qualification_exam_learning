@@ -1,0 +1,15 @@
+\subsection{What SFT can and cannot teach}
+
+SFT is behavior cloning: it is appropriate when the desired action, format, tool syntax,
+or reasoning style can be demonstrated. The dataset mixture therefore defines the target
+policy. A system prompt repeated unchanged in every example is only a constant condition;
+the data do not show how behavior should vary when that prompt changes. Likewise, one
+demonstrated path receives probability even when several alternatives would be valid.
+
+The more important limitation for the later comparison is distributional. During SFT,
+every target follows the correct demonstrated prefix. During deployment, the model
+conditions on its own earlier samples and may enter states absent from the demonstrations.
+SFT can provide a strong initial policy but does not itself explore alternative solutions,
+judge terminal success, or learn recovery from the model's own errors. RL addresses the
+outcome question using sampled behavior; on-policy distillation instead supplies dense
+teacher feedback on states encountered by the student.

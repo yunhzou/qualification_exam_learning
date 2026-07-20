@@ -1,0 +1,18 @@
+\subsection{Why outcome-only GRPO becomes insufficient}
+
+GRPO improves reasoning when completed outcomes can be verified reliably, as demonstrated
+by DeepSeek-R1 \citep{guo2025deepseekr1}. Its advantage nevertheless remains one number
+for the whole trajectory. It cannot distinguish a decisive reasoning step from irrelevant
+tokens, prompts with uniformly failed samples provide no relative signal, and imperfect
+verifiers can reward shortcuts. Longer trajectories amplify these limitations while also
+increasing sequential rollout cost.
+
+Agent systems add a second problem: the optimized tokens must remain attached to the policy
+version and exact context that generated them. Asynchronous workers create policy lag;
+tool responses are context rather than policy actions; context replacement, subagents, and
+parallel branches can require new trace boundaries rather than one fictional continuous
+trajectory \citep{glm5team2026,xu2026polar}. These limits motivate the later comparison:
+process reward models and critics attempt to localize progress, while on-policy
+distillation supplies dense teacher feedback on the student's encountered states. They are
+not merely alternative optimizers; they add information that terminal group comparison
+does not contain.

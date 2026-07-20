@@ -12,12 +12,13 @@ The report is organized like a small codebase. `main.tex` is the composition roo
 - `report/scope/`: research scope, guiding questions, working position, and the complete source corpus.
 - `report/foundations/`: a thin Transformer composition module plus separate files for
   the architecture graph, representations, attention, block components, training, and
-  KV-cached inference.
+  KV-cached inference. The paper composes a concise summary; the more detailed component
+  modules remain available as study references.
 - `report/post_training/`: thin algorithm composition files and one descriptively named
-  module per concept. The GRPO draft follows algorithm order across separate modules for
-  background, grouped advantages, policy gradients, importance ratios, rollout buffers,
-  clipping and KL, the training loop, execution models, and limitations. Agentic trace
-  construction begins in a separate composition module after the GRPO section.
+  module per concept. The paper composes compact SFT and GRPO synthesis modules to respect
+  its eight-page scope. Detailed modules for masking, loss reductions, policy gradients,
+  importance ratios, rollout buffers, clipping, execution models, and agentic traces remain
+  in the tree as study references and may support notebooks or oral-exam preparation.
 - `report/selected_sources/`: one file per paper, technical report, or research article, plus a small composition file.
 - `report/synthesis/`: comparisons organized by research question rather than by source.
 - `report/experiments/`: connections between claims in the literature and repository experiments.

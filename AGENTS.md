@@ -22,6 +22,12 @@
 
 ## Expository writing principles
 
+- Treat `main.tex` as an approximately eight-page, single-spaced qualifying-examination
+  position paper, not as a textbook or a transcript of the full learning curriculum.
+  Keep the introduction, Transformer foundations, and SFT concise; reserve most of the
+  argument for RL, distillation, method selection for long-horizon agents, and automated
+  post-training as continual learning. Detailed tutorial material belongs in notebooks,
+  notes, or non-composed reference modules.
 - Center explanations on human intuition, not notation. Before displaying any formula,
   establish the concrete problem, the available action, and why that action is reasonable;
   use the formula afterward as a compact model of an idea the reader already understands.

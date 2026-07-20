@@ -1,14 +1,7 @@
-\section{Reinforcement learning with GRPO}
-This section develops Group Relative Policy Optimization (GRPO) in the order that the
-algorithm executes. It begins with grouped rollout generation and ends with the systems
-issues that arise when the same update is distributed across asynchronous workers.
+\section{Policy-gradient reinforcement learning and GRPO}
+This section derives the common policy-gradient principle from scalar rewards and then
+shows how GRPO constructs a practical post-training objective from that principle.
 
-\input{tex/report/post_training/grpo_background_and_algorithm_overview}
-\input{tex/report/post_training/grpo_grouped_rollouts_rewards_and_advantages}
-\input{tex/report/post_training/grpo_trajectory_advantage_policy_gradient}
-\input{tex/report/post_training/grpo_importance_ratio_derivation}
-\input{tex/report/post_training/grpo_rollout_buffer_and_policy_versions}
-\input{tex/report/post_training/grpo_clipped_objective_and_reference_kl}
-\input{tex/report/post_training/grpo_complete_training_loop}
-\input{tex/report/post_training/grpo_synchronous_and_asynchronous_execution}
-\input{tex/report/post_training/grpo_compute_memory_and_credit_assignment_limits}
+\input{tex/report/post_training/policy_gradient_from_scalar_rewards_summary}
+\input{tex/report/post_training/grpo_group_baseline_and_objective_summary}
+\input{tex/report/post_training/grpo_long_horizon_limits_summary}

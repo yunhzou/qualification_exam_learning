@@ -47,6 +47,24 @@ Based on the Department of Computer Science Graduate Handbook for the PhD Progra
 - Rehearsed answers covering all of Section 1(a)-(e), including material broader than the written paper.
 - Optional, reproducible post-training experiments that clarify or challenge claims in the literature.
 
+## Position-paper emphasis
+
+The written paper is approximately eight single-spaced pages. It is a position paper for
+the qualifying examination, not a complete rendering of the learning curriculum.
+Transformer foundations and SFT should occupy only enough space to establish prerequisites.
+The main discussion should concentrate on:
+
+1. policy-gradient RL and post-training methods such as GRPO;
+2. distillation, especially on-policy distillation;
+3. when to use SFT, RL, process feedback or critics, and distillation, particularly for
+   long-horizon agents; and
+4. automated post-training as a possible continual-learning loop involving data synthesis,
+   verification, failure diagnosis, data resynthesis, curriculum construction, and
+   automatic benchmarks.
+
+Detailed derivations and implementation tutorials remain part of the repository's learning
+materials but should not automatically be composed into `main.tex`.
+
 ## Working checkpoints
 
 1. Confirm the research area, core paper list, and handbook expectations with the supervisor.
