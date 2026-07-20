@@ -3,6 +3,9 @@
 Composer 2.5 calls its method \emph{targeted textual feedback}; technically it is
 privileged-context on-policy self-distillation, often abbreviated OPSD. Here, \emph{steered
 OPD} (SOPD) refers to this specific use of a hint, not Cursor's name for the method.
+Self-Distillation Fine-Tuning uses the same general construction with a
+demonstration-conditioned copy of the student as its teacher
+\citep{shenfeld2026selfdistillation}.
 Suppose one turn in a long coding rollout calls an unavailable tool. Its effect may
 disappear inside the terminal reward. At that turn, a grounded hint---derived from an
 environment error or a generated diagnosis---is inserted only into the teacher context.

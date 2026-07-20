@@ -1,9 +1,9 @@
-\subsection{On-Policy Distillation: dense teacher feedback
-\citep{lu2025onpolicydistillation}}
-\paragraph{Source type.} First-party research article with an accompanying maintained implementation recipe.
+\subsection{On-policy distillation: dense teacher feedback
+\citep{agarwal2024onpolicy,lu2025onpolicydistillation}}
+\paragraph{Source type.} Peer-reviewed research paper, supplemented by a later first-party research article and implementation recipe.
 \paragraph{Research question.} Ask whether dense teacher feedback on student-generated prefixes can recover teacher behavior more efficiently than offline SFT or sparse-reward RL.
 \paragraph{Method.} Document student rollouts, teacher evaluation on identical prefixes, token-level reverse KL, masking, rollout freshness, and teacher/student support.
-\paragraph{Main evidence.} Record the teacher-recovery and reasoning experiments, including the sample and compute accounting used for comparisons.
+\paragraph{Main evidence.} Record the original sequence-model distillation results and the later teacher-recovery and reasoning experiments, including sample and compute accounting.
 \paragraph{Connection to the position.} Explain how OPD combines on-policy state coverage with dense token-level credit.
 \paragraph{Critical assessment.} Examine reverse-KL mode seeking, teacher reliability off its normal distribution, exploration limits, and dependence on initialization.
 \paragraph{Takeaway.} Complete after reading.
