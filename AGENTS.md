@@ -3,6 +3,9 @@
 ## Required PDF verification
 
 - After every repository change, run `.\.venv\Scripts\python.exe scripts\build.py all` from the repository root.
+- Do not modify `presentation.tex` or any file under `tex/presentation/` unless the user
+  explicitly requests presentation work. The mandatory build may still compile the
+  unchanged presentation as a regression check.
 - Do not finish a task while either Tectonic build is running or failing.
 - In the final response, provide local links to `build/main.pdf` and `build/presentation.pdf` so the updated documents are immediately available for review.
 - After changes to LaTeX sources, bibliography entries, or document structure, render the affected PDF pages and inspect them for clipping, overlap, broken references, and other layout problems.

@@ -7,6 +7,8 @@ The report is organized like a small codebase. `main.tex` is the composition roo
 - `report/front_matter/`: title metadata and optional front matter. The current working
   draft omits the abstract and table of contents while its argument is built section by
   section.
+- `report/background/`: research motivation, the post-training problem, and the
+  organizing questions that connect the technical foundations to the selected methods.
 - `report/scope/`: research scope, guiding questions, working position, and the complete source corpus.
 - `report/foundations/`: a thin Transformer composition module plus separate files for
   the architecture graph, representations, attention, block components, training, and
