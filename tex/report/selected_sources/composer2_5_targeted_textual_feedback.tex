@@ -1,16 +1,17 @@
-\subsection{Composer 2.5: targeted textual feedback through on-policy distillation
-\citep{cursor2026composer25}}
+\subsection{Composer 2.5: targeted textual feedback through on-policy self-distillation
+\citep{cursor2026composer25,shenfeld2026selfdistillation}}
 \paragraph{Source type.} First-party research article.
 \paragraph{Research question.} Ask how a localized mistake inside a rollout spanning many
 turns and tool calls can receive a useful training signal when the terminal reward is too diffuse.
-\paragraph{Method.} For a problematic model turn, insert a short corrective hint into the
-teacher context while leaving the student's context unchanged, then apply an on-policy KL
-loss that moves the student token distribution toward the hint-conditioned teacher distribution.
+\paragraph{Method.} Run the same policy in two roles at a problematic student turn: an
+ordinary-context student and a self-teacher that additionally sees a validated,
+non-answer-leaking hint. Apply an on-policy KL loss that moves the ordinary distribution
+toward the hint-conditioned distribution.
 \paragraph{Main evidence.} Record reported behavioral uses, benchmark changes, synthetic-task
 scaling, reward-hacking observations, and any available ablation of targeted feedback.
 \paragraph{Connection to the position.} Provide a direct systems example of combining
 trajectory-level RL with dense, localized, privileged-context feedback.
-\paragraph{Critical assessment.} Examine who generates and verifies hints, whether the
-teacher correction is valid, tokenization and support mismatch, interference with the RL
-objective, selective reporting, and the lack of full training details.
+\paragraph{Critical assessment.} Examine who generates and verifies hints, whether they
+leak unavailable task information, whether the induced correction is valid, interference
+with the RL objective, selective reporting, and the lack of full training details.
 \paragraph{Takeaway.} Complete after reading.

@@ -6,7 +6,7 @@ sampled action was better or worse than expected, but does not name the mistake 
 an alternative. Textual feedback can carry that missing structure: which assumption
 failed, which tool was available, or which subgoal should change. The human-learning
 analogy is instruction rather than a score: one grounded explanation can change several
-downstream choices. OPD converts this semantic intervention into a token-distribution
+downstream choices. OPSD converts this semantic intervention into a token-distribution
 target rather than compressing it immediately to one number.
 
 Long-horizon credit assignment should therefore be hierarchical. \emph{Trajectory-level}
@@ -14,7 +14,7 @@ verification asks whether the complete task succeeded. \emph{Trace-level} diagno
 the responsible model call, subgoal, tool interaction, or context segment.
 \emph{Token-level} optimization changes the action distribution inside that selected
 trace. These levels are complementary: terminal evidence anchors correctness, a grounded
-hint identifies the causal correction, and OPD or SFT turns that correction into a
+hint identifies the causal correction, and OPSD or SFT turns that correction into a
 gradient. Applying token-level feedback everywhere without first locating the responsible
 trace can be as noisy as broadcasting one terminal reward over the whole trajectory.
 

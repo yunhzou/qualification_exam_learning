@@ -1,0 +1,37 @@
+\subsection{On-policy self-distillation from privileged feedback}
+
+In OPSD, the ``S'' means \emph{self}: the policy supplies its own teacher signal under a
+better context. At a selected student prefix $s_t$, the ordinary policy produces
+$P_t=\pi_\theta(\cdot\mid s_t)$. A teacher branch of the same policy additionally sees a
+validated hint $h_t$ and produces $Q_t=\pi_\theta(\cdot\mid s_t,h_t)$. Conditioning
+on the hint steers $Q_t$ toward a more appropriate next action. The teacher branch is
+treated as fixed for the update, and minimizing $D_{\mathrm{KL}}(P_t\|Q_t)$ pulls the
+ordinary, no-hint distribution toward that correction. The prefixes are on-policy because
+the ordinary student visited them; the target is self-distilled because the same model
+supplies $Q_t$ under privileged context
+\citep{shenfeld2026selfdistillation,cursor2026composer25}.
+The intuition is direct: if the model behaves correctly when reminded, distill the
+reminded distribution so that it can behave that way without the reminder. The
+continual-learning study stabilizes this self-teacher with exponential-moving-average
+weights by default; it does not introduce an external expert.
+
+``Privileged'' should not mean answer leakage. A valid hint supplies feedback or a
+constraint that the trainer can legitimately know---for example, the tools actually
+available at that turn, a grounded diagnosis of a local error, or a required communication
+rule. It should not expose a held-out answer, hidden tests, or future environment results.
+Otherwise the teacher distribution is improved by information unavailable to the task,
+and the resulting benchmark or capability claim is contaminated.
+
+Composer 2.5 applies this construction to localized mistakes inside long RL rollouts. If
+the policy calls an unavailable tool, a short reminder listing the available tools is added
+only to the teacher context. The hint lowers the teacher probability of the invalid call
+and raises valid alternatives; a KL loss at that turn moves the original-context policy in
+the same direction, while the complete rollout retains its RL objective
+\citep{cursor2026composer25}. At inference the hint is absent: its behavioral effect has
+been compiled into the model parameters.
+
+A distinct extension would train the model to generate and use grounded diagnoses itself,
+using sequences such as \emph{state $\rightarrow$ feedback $\rightarrow$ corrected
+action}. This may create a reusable inference-time reflection skill, but it is not what
+OPSD itself does. OPSD internalizes the distributional effect of supplied feedback without
+requiring the model to reproduce the hint.
