@@ -8,10 +8,27 @@ AIME'24 accuracy from roughly $60\%$ to $70\%$ using about 77,000 prompts after 
 initialization; the article's compute comparisons favor OPD, but depend on its models,
 systems, and accounting assumptions \citep{lu2025onpolicydistillation}.
 
-Dense feedback does not create missing support. If the student almost never samples the
-teacher's useful strategy, the teacher receives no visited state on which to reinforce it;
-SFT or mid-training may first be needed to introduce that behavior. OPD also inherits the
-teacher's errors and can reduce useful diversity through reverse-KL mode seeking. It is
-therefore better viewed as efficient behavior transfer or recovery on student-visited
-states, while RL remains necessary when success must be discovered or judged by an
-external environment rather than copied from a teacher.
+OPD needs local policy overlap, not identical models. The teacher can strongly penalize a
+bad student token, but dense feedback does not create missing support. If the student is
+far away, its rollouts mostly visit poor prefixes and may never expose the teacher's useful
+strategy. The update then says what to suppress without demonstrating the missing path;
+SFT, mid-training, or an easier teacher may first be needed to bridge the policies. Recent
+experiments likewise identify large student--teacher mismatch as a case where the guiding
+signal can become misaligned with task correctness \citep{wang2026demystifyingopd}.
+
+Long horizons compound this mismatch. A small probability of leaving teacher-like states
+at each step makes late student prefixes increasingly unlike prefixes the teacher would
+normally produce. Later tokens are not automatically given less loss weight---the teacher
+still scores every actual prefix---but its local correction may become less useful far off
+its normal trajectory distribution. Alternating sample, update, and resample rounds moves
+the visited distribution gradually and partially mitigates the problem, provided the
+initial overlap supplies a learnable bridge. OPD also inherits teacher errors and may
+reduce diversity through reverse-KL mode seeking; RL is still needed when success must be
+discovered or judged externally rather than transferred from a teacher.
+
+The empirical claim must remain narrower than the intuition. Privileged-context
+self-distillation has degraded thinking models most at long rollout budgets, apparently by
+suppressing useful reconsideration at high-entropy branch points; the same study reports
+that ordinary OPD can still help \citep{kaur2026rethinkingopsd}. Thus, horizon length alone
+does not invalidate OPD. Teacher distance, privileged-context strength, and where the
+distillation loss is applied jointly determine whether later feedback remains useful.

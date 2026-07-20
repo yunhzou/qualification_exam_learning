@@ -1,0 +1,22 @@
+\subsection{Steered OPD (SOPD) from textual feedback}
+
+Composer 2.5 calls its method \emph{targeted textual feedback}; technically it is
+privileged-context on-policy self-distillation, often abbreviated OPSD. Here, \emph{steered
+OPD} (SOPD) refers to this specific use of a hint, not Cursor's name for the method.
+Suppose one turn in a long coding rollout calls an unavailable tool. Its effect may
+disappear inside the terminal reward. At that turn, a grounded hint---derived from an
+environment error or a generated diagnosis---is inserted only into the teacher context.
+The original-context policy remains the student, and a KL loss moves the student's
+distribution toward the hint-conditioned distribution for that turn. The broader
+trajectory still receives its RL objective \citep{cursor2026composer25}. The hint therefore
+supplies a semantic correction without becoming an inference-time input.
+
+A proposed extension is to internalize the feedback process itself. Instead of only
+distilling the hidden hint's effect, train the model on sequences of
+\emph{state $\rightarrow$ grounded hint $\rightarrow$ revised action}, so it learns to
+produce and use a diagnosis at inference time. SFT on hint text alone is insufficient: the
+model could learn to verbalize a good reminder without changing its next decision. The
+hint must be coupled to a verified correction, and self-generated hints must be checked to
+avoid reinforcing plausible but false diagnoses. This explicit route costs inference
+tokens but may create reusable trace-level skills; steered OPD is cheaper at inference
+because it compiles the hint's behavioral effect directly into the policy.

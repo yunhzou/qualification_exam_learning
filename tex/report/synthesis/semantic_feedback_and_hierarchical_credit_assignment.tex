@@ -1,0 +1,27 @@
+\section{Semantic feedback and hierarchical credit}
+
+A scalar reward says whether a trajectory worked but discards the explanation. A PPO
+critic estimates scalar values at token states; its derived advantage says whether a
+sampled action was better or worse than expected, but does not name the mistake or propose
+an alternative. Textual feedback can carry that missing structure: which assumption
+failed, which tool was available, or which subgoal should change. The human-learning
+analogy is instruction rather than a score: one grounded explanation can change several
+downstream choices. OPD converts this semantic intervention into a token-distribution
+target rather than compressing it immediately to one number.
+
+Long-horizon credit assignment should therefore be hierarchical. \emph{Trajectory-level}
+verification asks whether the complete task succeeded. \emph{Trace-level} diagnosis finds
+the responsible model call, subgoal, tool interaction, or context segment.
+\emph{Token-level} optimization changes the action distribution inside that selected
+trace. These levels are complementary: terminal evidence anchors correctness, a grounded
+hint identifies the causal correction, and OPD or SFT turns that correction into a
+gradient. Applying token-level feedback everywhere without first locating the responsible
+trace can be as noisy as broadcasting one terminal reward over the whole trajectory.
+
+This suggests an automated post-training loop: verify the outcome, diagnose a trace,
+generate and validate semantic feedback, then either convert it into a process reward,
+distill its hint-conditioned distribution, or train an explicit
+hint-and-correction sequence. Resampling tests whether the behavior actually changed. The
+central claim is not that text avoids numerical optimization, but that it preserves a
+much richer description until the last step where it must become a gradient. Repeating
+this loop is a plausible bridge from post-training to continual agent improvement.
