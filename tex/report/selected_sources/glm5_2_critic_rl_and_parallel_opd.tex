@@ -4,12 +4,14 @@
 \paragraph{Research question.} Ask how a post-training system should handle compacted,
 variable-length long-horizon trajectories and combine specialized expert behaviors.
 \paragraph{Method.} Document the move from group-relative optimization to critic-based PPO
-with token-level advantages, training on compacted sub-trajectories, online anti-hacking,
-and parallel on-policy distillation from multiple expert models.
+so individual rollouts can train without a fixed same-prompt sibling group. Record its
+token-level critic advantages, length-balanced loss over compacted sub-traces, online
+anti-hacking, and parallel on-policy distillation from multiple expert models.
 \paragraph{Main evidence.} Record benchmark results, efficiency claims, critic or OPD
 ablations, and the stated two-day multi-expert OPD run as distinct categories of evidence.
-\paragraph{Connection to the position.} Provide a production-scale case in which learned
-critics and OPD are presented as responses to long-horizon credit assignment and heterogeneous tasks.
+\paragraph{Connection to the position.} Provide a production-scale case in which a critic
+removes GRPO's group-sampling requirement and supplies denser credit for ragged long-horizon
+traces; this motivation is separate from off-policy trace reconstruction.
 \paragraph{Critical assessment.} Treat first-party benchmark claims cautiously; examine
 critic-target construction, compaction boundaries, anti-hack false positives, expert conflicts,
 and the absence or presence of controlled comparisons.
