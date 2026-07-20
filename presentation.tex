@@ -2,22 +2,76 @@
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{array}
 \usepackage{booktabs}
+\usepackage{graphicx}
 \usepackage[numbers,sort&compress]{natbib}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,decorations.pathreplacing,fit,positioning}
 
 \usetheme{default}
-\usecolortheme{dolphin}
 \setbeamertemplate{navigation symbols}{}
+
+\definecolor{DeckInk}{HTML}{17212B}
+\definecolor{DeckTeal}{HTML}{147D78}
+\definecolor{DeckGold}{HTML}{B87521}
+\definecolor{DeckRed}{HTML}{B94747}
+\definecolor{DeckBlue}{HTML}{3568A8}
+\definecolor{DeckSoft}{HTML}{EEF2F3}
+\definecolor{DeckMuted}{HTML}{5D6872}
+
+\setbeamercolor{normal text}{fg=DeckInk,bg=white}
+\setbeamercolor{frametitle}{fg=DeckInk,bg=white}
+\setbeamercolor{structure}{fg=DeckTeal}
+\setbeamercolor{alerted text}{fg=DeckRed}
+\setbeamercolor{takeaway}{fg=DeckInk,bg=DeckSoft}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{title}{size=\huge,series=\bfseries}
+\setbeamerfont{subtitle}{size=\Large}
+\setbeamersize{text margin left=7mm,text margin right=7mm}
+\setbeamertemplate{itemize item}{\color{DeckTeal}$\blacktriangleright$}
+\setbeamertemplate{itemize subitem}{\color{DeckGold}$\bullet$}
+\setbeamertemplate{frametitle}{%
+  \vspace{4mm}\insertframetitle\par
+  \vspace{1mm}{\color{DeckTeal}\rule{\textwidth}{0.8pt}}}
+\setbeamertemplate{footline}{%
+  \hfill{\scriptsize\color{DeckMuted}\insertframenumber}\hspace{6mm}\vspace{3mm}}
+
+\newcommand{\takeaway}[1]{%
+  \vfill
+  \begin{beamercolorbox}[wd=\textwidth,sep=1.5mm]{takeaway}
+    \textbf{Takeaway:} #1
+  \end{beamercolorbox}}
+\newcommand{\slidesource}[1]{%
+  \par\vspace{1mm}{\tiny\color{DeckMuted}Source: #1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\tikzset{
+  flowbox/.style={draw=DeckMuted,fill=white,rounded corners=2pt,align=center,
+    minimum height=8mm,text width=26mm,font=\small,inner sep=2mm},
+  signalbox/.style={flowbox,draw=DeckTeal,fill=DeckTeal!8},
+  warnbox/.style={flowbox,draw=DeckRed,fill=DeckRed!7},
+  flowarrow/.style={-{Latex[length=2.2mm]},line width=0.8pt,draw=DeckMuted}
+}
 
 \input{tex/presentation/document_metadata}
 
 \begin{document}
 \input{tex/presentation/frames/title_page}
-\input{tex/presentation/frames/guiding_questions}
-\input{tex/presentation/frames/core_source_corpus}
-\input{tex/presentation/frames/credit_assignment_comparison}
-\input{tex/presentation/frames/synthesis_and_open_questions}
-\input{tex/presentation/frames/connection_to_repository_experiments}
+\input{tex/presentation/frames/why_post_train_scientific_agents}
+\input{tex/presentation/frames/three_learning_signals}
+\input{tex/presentation/frames/sft_behavior_cloning_algorithm}
+\input{tex/presentation/frames/grpo_group_relative_algorithm}
+\input{tex/presentation/frames/long_horizon_credit_assignment}
+\input{tex/presentation/frames/grpo_limits_for_agentic_tasks}
+\input{tex/presentation/frames/context_compaction_and_multi_trace_training}
+\input{tex/presentation/frames/opd_dense_teacher_feedback_algorithm}
+\input{tex/presentation/frames/opsd_privileged_context_algorithm}
+\input{tex/presentation/frames/mopd_capability_merging}
+\input{tex/presentation/frames/method_selection_by_available_feedback}
+\input{tex/presentation/frames/research_direction_internalized_feedback}
+\input{tex/presentation/frames/autonomous_continual_post_training_loop}
 \input{tex/presentation/frames/conclusion}
 \input{tex/presentation/frames/references}
 

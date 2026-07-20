@@ -1,0 +1,37 @@
+% Suggested time: 1.4 minutes
+\begin{frame}[t]{Long-horizon agents expose the credit problem}
+  \begin{center}
+    \begin{tikzpicture}
+      \foreach \x in {0,...,11} {
+        \pgfmathtruncatemacro{\bad}{ifthenelse(\x==4,1,0)}
+        \ifnum\bad=1
+          \node[draw=DeckRed,fill=DeckRed!16,minimum width=9mm,minimum height=8mm]
+            (n\x) at (0.85*\x,0) {\scriptsize error};
+        \else
+          \node[draw=DeckMuted!70,fill=DeckSoft,minimum width=9mm,minimum height=8mm]
+            (n\x) at (0.85*\x,0) {};
+        \fi
+      }
+      \draw[decorate,decoration={brace,mirror,amplitude=5pt},DeckMuted]
+        (-0.45,-0.55) -- (9.8,-0.55)
+        node[midway,below=6pt] {\small hundreds of model and tool interactions};
+      \node[warnbox,text width=24mm] (reward) at (4.7,-1.9) {Final reward: 0};
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{3mm}
+  \begin{itemize}
+    \item The terminal score says \emph{the trajectory failed}, not which decision caused it.
+    \item GRPO broadcasts one trajectory advantage across every sampled token.
+    \item One incorrect tool call can disappear among thousands of otherwise reasonable actions.
+  \end{itemize}
+
+  \vspace{2mm}
+  \begin{center}
+    \textcolor{DeckGold}{\textbf{Trajectory outcome}}
+    $\longrightarrow$
+    \textcolor{DeckBlue}{\textbf{responsible trace}}
+    $\longrightarrow$
+    \textcolor{DeckTeal}{\textbf{token update}}
+  \end{center}
+\end{frame}

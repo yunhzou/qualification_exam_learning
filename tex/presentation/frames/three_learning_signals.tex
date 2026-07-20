@@ -1,0 +1,21 @@
+% Suggested time: 1 minute
+\begin{frame}[t]{Three ways to teach a model}
+  \vspace{3mm}
+  \small
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{L{0.16\textwidth}L{0.23\textwidth}L{0.25\textwidth}L{0.20\textwidth}}
+    \toprule
+    \textbf{Method} & \textbf{What we provide} & \textbf{What the model learns} & \textbf{Signal density} \\
+    \midrule
+    \textcolor{DeckBlue}{\textbf{SFT}} & A desired response & Copy this behavior & Exact target tokens \\
+    \textcolor{DeckGold}{\textbf{RL / GRPO}} & A success score & Discover behavior that scores well & Usually one number \\
+    \textcolor{DeckTeal}{\textbf{Distillation}} & A better token distribution & Move toward teacher behavior & Feedback at each token \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{4mm}
+  \begin{center}
+    {\large The central design choice is the \textbf{learning signal}:\\
+    what information it contains and where it applies.}
+  \end{center}
+\end{frame}

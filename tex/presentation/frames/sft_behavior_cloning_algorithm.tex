@@ -1,0 +1,32 @@
+% Suggested time: 1.2 minutes
+\begin{frame}[t]{SFT: learn by imitating a demonstration}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.52\textwidth}
+      {\large\textbf{Algorithm}}
+      \begin{enumerate}
+        \item Collect a desired conversation or agent trace.
+        \item Keep user messages and tool responses as context.
+        \item Train only on demonstrated assistant tokens.
+      \end{enumerate}
+
+      \vspace{3mm}
+      \[
+        \mathcal L_{\mathrm{SFT}}
+        =-\sum_t m_t\log \pi_\theta(y_t\mid y_{<t},x)
+      \]
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      {\large\textbf{Agent example}}
+      \vspace{2mm}
+      \begin{tikzpicture}[node distance=3mm]
+        \node[flowbox,text width=42mm] (user) {User task};
+        \node[flowbox,text width=42mm,below=of user] (tool) {Tool result\\\scriptsize visible, but masked};
+        \node[signalbox,text width=42mm,below=of tool] (action) {Desired model action\\\scriptsize trained target};
+        \draw[flowarrow] (user) -- (tool);
+        \draw[flowarrow] (tool) -- (action);
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+
+  {\small\color{DeckRed}\textbf{Limit:} SFT demonstrates the desired path; it does not teach recovery from unseen self-generated mistakes.}
+\end{frame}

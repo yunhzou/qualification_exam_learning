@@ -1,0 +1,34 @@
+% Suggested time: 1.4 minutes
+\begin{frame}[t]{Research direction 1: internalize feedback generation}
+  \vspace{0mm}
+  {\large\textbf{Current OPSD}}
+  \begin{center}
+    \begin{tikzpicture}[node distance=4mm]
+      \node[flowbox] (state1) {Agent state};
+      \node[signalbox,right=of state1] (external) {External grounded hint};
+      \node[signalbox,right=of external] (distill) {Distill corrected distribution};
+      \draw[flowarrow] (state1) -- (external);
+      \draw[flowarrow] (external) -- (distill);
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{1mm}
+  {\large\textbf{Proposed extension}}
+  \begin{center}
+    \begin{tikzpicture}[node distance=4mm]
+      \node[flowbox] (state2) {Agent state};
+      \node[signalbox,right=of state2] (generate) {Model generates a diagnosis};
+      \node[warnbox,right=of generate] (verify) {Verify the hint};
+      \node[signalbox,right=of verify] (correct) {Generate corrected action};
+      \draw[flowarrow] (state2) -- (generate);
+      \draw[flowarrow] (generate) -- (verify);
+      \draw[flowarrow] (verify) -- (correct);
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{2mm}
+  \begin{itemize}
+    \item Train not only the correction, but the reusable process that produces grounded feedback.
+    \item Verification is essential; plausible but false self-feedback would otherwise reinforce itself.
+  \end{itemize}
+\end{frame}

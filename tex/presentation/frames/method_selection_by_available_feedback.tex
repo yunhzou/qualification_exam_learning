@@ -1,0 +1,18 @@
+% Suggested time: 1.3 minutes
+\begin{frame}[t]{Choose the method from the feedback you possess}
+  \renewcommand{\arraystretch}{1.28}
+  \small
+  \begin{tabular}{L{0.29\textwidth}L{0.15\textwidth}L{0.42\textwidth}}
+    \toprule
+    \textbf{Available supervision} & \textbf{Method} & \textbf{Best use} \\
+    \midrule
+    Trusted target behavior & \textcolor{DeckBlue}{\textbf{SFT}} & Clone formats, tool syntax, and demonstrated strategies \\
+    Verifiable outcome + exploration & \textcolor{DeckGold}{\textbf{RL / GRPO}} & Discover behavior not available as demonstrations \\
+    Strong external teacher & \textcolor{DeckTeal}{\textbf{OPD}} & Transfer dense corrections on student states \\
+    Same model improves with a hint & \textcolor{DeckTeal}{\textbf{OPSD}} & Internalize localized semantic feedback \\
+    Several specialized teachers & \textcolor{DeckTeal}{\textbf{MOPD}} & Merge complementary capabilities \\
+    \bottomrule
+  \end{tabular}
+
+  \takeaway{No objective is universally best; the useful question is which trustworthy learning signal is available at the state that needs correction.}
+\end{frame}

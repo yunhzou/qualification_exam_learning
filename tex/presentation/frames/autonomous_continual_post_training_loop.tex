@@ -1,0 +1,31 @@
+% Suggested time: 1.5 minutes
+\begin{frame}[t]{Research direction 2: autonomous continual post-training}
+  \begin{center}
+    \begin{tikzpicture}[node distance=4mm and 5mm]
+      \node[flowbox,text width=29mm] (sources) {Domain sources\\\scriptsize texts, papers, records};
+      \node[signalbox,right=of sources] (tasks) {Diagnostic tasks};
+      \node[signalbox,right=of tasks] (gap) {Verify and diagnose gaps};
+      \node[signalbox,right=of gap] (curriculum) {Validated curriculum};
+      \node[signalbox,below=8mm of curriculum] (train) {Continual post-training\\\scriptsize SFT, RL, OPSD};
+      \node[flowbox,left=of train] (eval) {Protected evaluation + retention};
+      \node[flowbox,left=of eval] (policy) {Updated domain capability};
+
+      \draw[flowarrow] (sources) -- (tasks);
+      \draw[flowarrow] (tasks) -- (gap);
+      \draw[flowarrow] (gap) -- (curriculum);
+      \draw[flowarrow] (curriculum) -- (train);
+      \draw[flowarrow] (train) -- (eval);
+      \draw[flowarrow] (eval) -- (policy);
+      \draw[flowarrow] (policy.west) -| ++(-6mm,10mm) |- (tasks.south);
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{1mm}
+  \begin{itemize}
+    \item In-context learning bootstraps a curriculum even in an unfamiliar domain.
+    \item Verified post-training internalizes that contextual competence into model parameters.
+    \item Held-out evaluation and retention tests decide whether an update is promoted or rolled back.
+  \end{itemize}
+  \vspace{0mm}
+  {\color{DeckTeal}\textbf{The result is a closed learning system, not one isolated fine-tune.}}
+\end{frame}

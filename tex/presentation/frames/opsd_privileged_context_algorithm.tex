@@ -1,0 +1,35 @@
+% Suggested time: 1.8 minutes
+\begin{frame}[t]{OPSD: distill how the model behaves when reminded}
+  \begin{center}
+    \begin{tikzpicture}[node distance=5mm and 10mm]
+      \node[flowbox,text width=42mm] (normal) {Ordinary context $s_t$};
+      \node[flowbox,text width=42mm,right=of normal] (hint)
+        {Context $s_t$ + validated hint $h_t$};
+      \node[signalbox,text width=42mm,below=of normal] (student)
+        {Same policy\\student distribution $P_t$};
+      \node[signalbox,text width=42mm,below=of hint] (teacher)
+        {Same policy\\self-teacher distribution $Q_t$};
+      \draw[flowarrow] (normal) -- (student);
+      \draw[flowarrow] (hint) -- (teacher);
+      \draw[-{Latex[length=2.2mm]},line width=1.2pt,DeckGold]
+        (teacher.west) -- node[above,font=\small] {KL pulls $P_t$ toward $Q_t$} (student.east);
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.47\textwidth}
+      \begin{itemize}
+        \item \textbf{S means self}: both distributions come from the same policy.
+        \item The hint must guide behavior without leaking the answer or future results.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{beamercolorbox}[wd=\textwidth,sep=2mm]{takeaway}
+        \textbf{Composer example:} a hint lists the tools actually available. The self-teacher lowers the invalid call and raises valid replacements \citep{cursor2026composer25}.
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+
+  \vspace{1mm}
+  {\small\color{DeckTeal}\textbf{Core idea:} A legitimate reminder becomes no-hint behavior \citep{shenfeld2026selfdistillation}.}
+\end{frame}
