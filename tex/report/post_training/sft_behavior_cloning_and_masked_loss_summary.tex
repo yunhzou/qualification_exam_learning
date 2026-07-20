@@ -16,7 +16,11 @@ architecture. $M$ counts supervised tokens rather than padded sequence length. M
 does not avoid the forward computation for prompt context; it only decides which predicted
 positions contribute directly to the scalar loss.
 
-Token averaging gives a long assistant response more total influence than a short one.
-Per-example averaging, task-balanced sampling, or explicit weights encode different
-choices about whether tokens, demonstrations, or tasks should be equal units. Packing and
-length-grouped batching improve utilization but do not change this statistical weighting.
+Token averaging creates a dataset-length imbalance. For example, if a batch contains one
+20-token response and one 980-token response, their approximate weights in the gradient
+are $2\%$ and $98\%$, even though the dataset contains one trajectory of each. A useful
+direction represented by the short example can therefore be diluted by the long trace.
+This is a statistical choice, not a padding problem: packing and length-grouped batching
+improve utilization but do not change the weights. Per-example averaging, task-balanced
+sampling, or explicit weights instead choose demonstrations or tasks, rather than tokens,
+as the equal units.
