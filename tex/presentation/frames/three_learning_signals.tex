@@ -8,7 +8,7 @@
     \textbf{Method} & \textbf{What we provide} & \textbf{What the model learns} & \textbf{Signal density} \\
     \midrule
     \textcolor{DeckBlue}{\textbf{SFT}} & A desired response & Copy this behavior & Exact target tokens \\
-    \textcolor{DeckGold}{\textbf{RL / GRPO}} & A success score & Discover behavior that scores well & Usually one number \\
+    \textcolor{DeckGold}{\textbf{RL}} & Reward from experience & Increase expected reward & Often one sparse number \\
     \textcolor{DeckTeal}{\textbf{Distillation}} & A better token distribution & Move toward teacher behavior & Feedback at each token \\
     \bottomrule
   \end{tabular}

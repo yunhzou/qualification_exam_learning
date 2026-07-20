@@ -1,5 +1,5 @@
 % Suggested time: 1.4 minutes
-\begin{frame}[t]{Long-horizon agents expose the credit problem}
+\begin{frame}[t]{Credit assignment is the bottleneck in long traces}
   \begin{center}
     \begin{tikzpicture}
       \foreach \x in {0,...,11} {
@@ -14,24 +14,25 @@
       }
       \draw[decorate,decoration={brace,mirror,amplitude=5pt},DeckMuted]
         (-0.45,-0.55) -- (9.8,-0.55)
-        node[midway,below=6pt] {\small hundreds of model and tool interactions};
-      \node[warnbox,text width=24mm] (reward) at (4.7,-1.9) {Final reward: 0};
+        node[midway,below=6pt] {\small 100,000 tokens of model calls, tools, and observations};
+      \node[warnbox,text width=30mm] (reward) at (4.7,-1.9) {Final reward $\rightarrow A_i<0$};
     \end{tikzpicture}
   \end{center}
 
-  \vspace{3mm}
+  \vspace{1mm}
+  \small
   \begin{itemize}
-    \item The terminal score says \emph{the trajectory failed}, not which decision caused it.
-    \item GRPO broadcasts one trajectory advantage across every sampled token.
-    \item One incorrect tool call can disappear among thousands of otherwise reasonable actions.
+    \item The outcome says \emph{the run failed}, but does not identify the responsible decision.
+    \item GRPO gives the same negative advantage to the one bad action and every good action around it.
+    \item More sibling rollouts improve the comparison; they do not explain the failure.
   \end{itemize}
 
-  \vspace{2mm}
+  \vspace{1mm}
   \begin{center}
-    \textcolor{DeckGold}{\textbf{Trajectory outcome}}
+    \textcolor{DeckGold}{\textbf{Outcome}}
     $\longrightarrow$
-    \textcolor{DeckBlue}{\textbf{responsible trace}}
+    \textcolor{DeckBlue}{\textbf{responsible trace or step}}
     $\longrightarrow$
-    \textcolor{DeckTeal}{\textbf{token update}}
+    \textcolor{DeckTeal}{\textbf{token-level update}}
   \end{center}
 \end{frame}

@@ -1,0 +1,40 @@
+% Suggested time: 1.3 minutes
+\begin{frame}[t]{GRPO: estimate advantage from sibling attempts}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[signalbox,text width=22mm] (prompt) at (0,0) {One task};
+      \node[flowbox] (a) at (-4.0,-1.25) {Attempt A\\\textcolor{DeckTeal}{reward 1}};
+      \node[flowbox] (b) at (0,-1.25) {Attempt B\\\textcolor{DeckRed}{reward 0}};
+      \node[flowbox] (c) at (4.0,-1.25) {Attempt C\\\textcolor{DeckTeal}{reward 1}};
+      \draw[flowarrow] (prompt.south) -- (a.north);
+      \draw[flowarrow] (prompt.south) -- (b.north);
+      \draw[flowarrow] (prompt.south) -- (c.north);
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{1mm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.57\textwidth}
+      \small
+      \begin{enumerate}
+        \item Sample several answers to the \emph{same} task.
+        \item Use their mean reward as the expected outcome.
+        \item Reinforce attempts above that baseline; suppress those below it.
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.39\textwidth}
+      \[
+        A_i=\frac{r_i-\bar r}{s_r+\epsilon}
+      \]
+      \centering\small
+      No learned critic is needed to estimate this trajectory-level baseline.
+    \end{column}
+  \end{columns}
+
+  \vspace{1mm}
+  \begin{beamercolorbox}[wd=\textwidth,sep=1.5mm]{takeaway}
+    \centering\textbf{But the same $A_i$ is assigned to every trainable token in attempt $i$.}
+  \end{beamercolorbox}
+  \vspace{1mm}
+  {\tiny\color{DeckMuted}DeepSeek-R1 and first-principles GRPO analyses \citep{guo2025deepseekr1,shen2026firstprinciplesgrpo}.}
+\end{frame}

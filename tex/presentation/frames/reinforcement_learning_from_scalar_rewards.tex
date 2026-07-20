@@ -1,0 +1,37 @@
+% Suggested time: 1.2 minutes
+\begin{frame}[t]{RL: learn from the outcome of sampled behavior}
+  \vspace{1mm}
+  {\centering
+    \begin{tikzpicture}[node distance=5mm]
+      \node[signalbox,text width=20mm] (prompt) {Task};
+      \node[flowbox,text width=24mm,right=of prompt] (policy) {Policy samples\\an action sequence};
+      \node[flowbox,text width=25mm,right=of policy] (env) {Environment\\or verifier};
+      \node[warnbox,text width=21mm,right=of env] (reward) {Reward\\one score};
+      \draw[flowarrow] (prompt) -- (policy);
+      \draw[flowarrow] (policy) -- (env);
+      \draw[flowarrow] (env) -- (reward);
+      \draw[flowarrow,DeckGold] (reward.south) to[bend left=18]
+        node[below,font=\scriptsize,align=center]{increase good behavior;\\decrease bad behavior} (policy.south);
+    \end{tikzpicture}
+  \par}
+
+  \vspace{1mm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.62\textwidth}
+      \small
+      \begin{itemize}
+        \item The reward judges an attempt but does not provide corrected tokens.
+        \item Therefore the model can only reweight behavior it actually sampled.
+        \item The useful signal is \textbf{advantage}: reward relative to what was expected for this task.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.34\textwidth}
+      \vspace{4mm}
+      \[
+        \nabla J=\mathbb{E}\!\left[A\,\nabla\log\pi_\theta\right]
+      \]
+      \centering\small
+      $A>0$: reinforce\qquad $A<0$: suppress
+    \end{column}
+  \end{columns}
+\end{frame}
