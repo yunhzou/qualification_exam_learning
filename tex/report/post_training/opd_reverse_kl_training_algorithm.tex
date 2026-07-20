@@ -1,0 +1,29 @@
+\subsection{Reverse-KL training algorithm}
+
+At prefix $s_t$, OPD asks the student's next-token distribution to approach the teacher's
+distribution at the same prefix. Thinking Machines Lab uses reverse KL:
+\begin{equation}
+  D_{\mathrm{KL}}\!\left(\pi_\theta(\cdot\mid s_t)
+  \,\|\,\pi_T(\cdot\mid s_t)\right)
+  =\mathbb{E}_{a\sim\pi_\theta}
+  \left[\log\pi_\theta(a\mid s_t)-\log\pi_T(a\mid s_t)\right].
+  \label{eq:opd-reverse-kl}
+\end{equation}
+The value is zero when the next-token distributions match. Reverse KL is mode-seeking: it
+concentrates the student on behavior the teacher considers likely.
+
+The implementation does not need to sample a new answer from the teacher. It performs four
+steps:
+\begin{enumerate}
+  \item Sample exact token trajectories from a student snapshot $\pi_{\mathrm{old}}$ and
+        retain the sampled tokens' log-probabilities.
+  \item Run the teacher on the same prefixes and record its log-probability for each
+        student-sampled token.
+  \item Set $A_t=\log\pi_T(a_t\mid s_t)-\log\pi_{\mathrm{old}}(a_t\mid s_t)$: teacher-like
+        tokens receive positive signal and implausible tokens receive negative signal.
+  \item Update only the student. For reused rollouts, weight $A_t$ by the RL importance
+        ratio $\pi_\theta(a_t\mid s_t)/\pi_{\mathrm{old}}(a_t\mid s_t)$.
+\end{enumerate}
+Prompt, padding, and tool-response tokens remain conditioning context but are masked from
+the policy loss. Unlike a terminal advantage broadcast over a whole answer, $A_t$ changes
+at every trained token.

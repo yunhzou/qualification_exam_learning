@@ -1,0 +1,17 @@
+\subsection{Initialization, efficiency, and limits}
+
+OPD is most useful when the student already has the relevant capability in its sampling
+support and a trustworthy teacher is available. A teacher forward pass supplies feedback
+at every token, partial rollouts can be trained without waiting for a terminal verifier,
+and no separate reward model is required. In the reported reasoning experiment, OPD raised
+AIME'24 accuracy from roughly $60\%$ to $70\%$ using about 77,000 prompts after the SFT
+initialization; the article's compute comparisons favor OPD, but depend on its models,
+systems, and accounting assumptions \citep{lu2025onpolicydistillation}.
+
+Dense feedback does not create missing support. If the student almost never samples the
+teacher's useful strategy, the teacher receives no visited state on which to reinforce it;
+SFT or mid-training may first be needed to introduce that behavior. OPD also inherits the
+teacher's errors and can reduce useful diversity through reverse-KL mode seeking. It is
+therefore better viewed as efficient behavior transfer or recovery on student-visited
+states, while RL remains necessary when success must be discovered or judged by an
+external environment rather than copied from a teacher.
