@@ -1,0 +1,56 @@
+\section{Automated post-training as continual domain adaptation}
+
+The human-learning analogy suggests a closed loop rather than one final training run. A
+learner studies available material, tests themselves, identifies what remains unknown,
+builds targeted practice, and tests again. For an LLM agent, the corresponding loop begins
+with an externally anchored objective or domain. The system creates diagnostic tasks,
+attempts them, analyzes failures, synthesizes a curriculum, and repeats. Post-training
+becomes continual learning when verified experience changes the policy while earlier
+capabilities are retained, rather than merely appending another isolated fine-tune.
+
+Figure~\ref{fig:auto-post-training-loop} captures the proposed control loop. Its most
+important decision is the reflection step: a failed attempt may reveal a local mistake, a
+missing capability, a harness defect, or an unreliable evaluator. Only a genuine capability
+gap should trigger new training data. The current ``augment memory'' box must also be read
+carefully. Storing a document in retrieval memory changes the harness context; it does not
+change model parameters. Automated post-training additionally needs an explicit path from
+the diagnosed gap to verified demonstrations, rewards, or textual hints, then to an SFT,
+RL, or distillation update of a versioned policy.
+
+\begin{figure}[p]
+  \centering
+  \includegraphics[height=0.72\textheight,width=0.95\textwidth,keepaspectratio]
+    {figures/auto_post_train.png}
+  \caption{Proposed self-testing and adaptation loop. An external objective anchors task
+  generation; failures are reflected into retryable mistakes or curriculum-building
+  knowledge gaps; practice then tests whether the gap was resolved. For automated
+  post-training, ``augment memory'' must distinguish external retrieval memory from a
+  verified data-generation and policy-update path. This is a conceptual proposal, not a
+  reproduced training system.}
+  \label{fig:auto-post-training-loop}
+\end{figure}
+
+Self-benchmarking creates the main reliability problem. If one model generates the tasks,
+answers them, judges them, and trains on them, the loop can reward its own misconceptions,
+leak evaluation items into training, or construct an increasingly easy curriculum. A
+credible loop therefore separates training tasks from held-out tests, grounds verification
+in an environment or independent judge, records data provenance, evaluates regression on
+earlier capabilities, and retains a human gate or rollback path when evidence is uncertain.
+Self-distillation has shown that sequential skills can be acquired with less forgetting
+than ordinary SFT, but this is evidence for one update mechanism, not yet for a fully
+autonomous improvement loop \citep{shenfeld2026selfdistillation}.
+
+This distinction also separates two ambitions. Automated domain adaptation is relatively
+well anchored: a human supplies the target domain, source material, task constraints, and
+often verifiable tests. Recursive self-improvement is stronger because the system must also
+improve its gap detector, curriculum builder, and verifier without losing contact with an
+external objective. Progress should therefore mean improvement on protected, independently
+measured tasks with capability retention---not merely higher reward on the system's own
+generated benchmark.
+
+The earlier methods occupy different roles inside this loop. SFT clones verified examples;
+RL searches against outcome evidence; critics and semantic feedback locate errors; OPD
+transfers a correction on student-visited states; and MOPD merges specialized teachers.
+None closes the loop alone. The position of this paper is that long-term agent improvement
+requires their orchestration around trustworthy gap detection, hierarchical feedback,
+continual evaluation, and retention.
