@@ -13,9 +13,9 @@
         \node[signalbox,text width=42mm,minimum height=8mm,inner sep=1mm,below=of user] (assistant1)
           {\textbf{Assistant}\quad $m=1$: loss\\[-1mm]
            \scriptsize call \texttt{curl 3000}};
-        \node[flowbox,text width=42mm,minimum height=8mm,inner sep=1mm,below=of assistant1] (tool)
-          {\textbf{Tool result}\quad \textcolor{DeckMuted}{$m=0$: masked}\\[-1mm]
-           \scriptsize \texttt{not\_found}};
+        \node[warnbox,text width=42mm,minimum height=8mm,inner sep=1mm,below=of assistant1] (tool)
+          {\textbf{Tool result}\quad \textcolor{DeckMuted}{$m=0$ default}\\[-1mm]
+           \scriptsize \textcolor{DeckRed}{ECHO adds loss}\quad \texttt{not\_found}};
         \node[signalbox,text width=42mm,minimum height=8mm,inner sep=1mm,below=of tool] (assistant2)
           {\textbf{Assistant}\quad $m=1$: loss\\[-1mm]
            \scriptsize choose the next action};
