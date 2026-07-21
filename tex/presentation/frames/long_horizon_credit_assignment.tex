@@ -26,13 +26,13 @@
       {\large\color{DeckRed}\textbf{1. Outcome: $G_t$}}
       \vspace{1mm}
 
-      \small \textbf{Who won?} A later blunder can punish an earlier good move. This is the GRPO weakness.
+      \small $G_t$ sums future rewards. With only terminal chess reward, every move inherits who won; a later blunder punishes the earlier good move.
     \end{column}
     \begin{column}{0.32\textwidth}
       {\large\color{DeckGold}\textbf{2. State-relative}}
       \vspace{1mm}
 
-      \small $G_t-V(s_t)$ asks whether the outcome beat expectation from this position, but still uses the realized future.
+      \small Expected win $+$ actual win gives small $G_t-V(s_t)$; an unlikely win gives a positive surprise. It still credits the realized future as a whole.
     \end{column}
     \begin{column}{0.32\textwidth}
       {\large\color{DeckTeal}\textbf{3. Stepwise critic}}
@@ -41,7 +41,4 @@
       \small $r_t+\gamma V(s_{t+1})-V(s_t)$ asks whether this move improved expected return, but trusts the critic.
     \end{column}
   \end{columns}
-
-  \vspace{3mm}
-  \centering\textcolor{DeckGold}{\textbf{GRPO knows which game lost; it does not know which move deserved blame.}}
 \end{frame}
