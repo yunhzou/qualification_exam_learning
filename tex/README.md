@@ -31,6 +31,12 @@ The report is organized like a small codebase. `main.tex` is the composition roo
 named file under `presentation/frames/`. Keep a frame's title and content together so
 reordering the talk only requires moving an `\input{...}` line.
 
+## Shared modules
+
+The `shared/qualification_exam_reference_corpus.tex` module owns the common
+bibliography corpus used by both the report and presentation. Add a source there
+when it must appear in both reference lists.
+
 ## Naming rules
 
 Use descriptive snake-case filenames that state both the subject and its role, for example `composer2_5_targeted_textual_feedback.tex`. Do not use names such as `paper-06.tex`, `notes.tex`, or `misc.tex`. A reader should know which file to edit without opening it.
