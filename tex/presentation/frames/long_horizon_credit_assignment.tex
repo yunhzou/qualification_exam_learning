@@ -1,38 +1,47 @@
-% Suggested time: 1.4 minutes
-\begin{frame}[t]{Credit assignment is the bottleneck in long traces}
-  \begin{center}
-    \begin{tikzpicture}
-      \foreach \x in {0,...,11} {
-        \pgfmathtruncatemacro{\bad}{ifthenelse(\x==4,1,0)}
-        \ifnum\bad=1
-          \node[draw=DeckRed,fill=DeckRed!16,minimum width=9mm,minimum height=8mm]
-            (n\x) at (0.85*\x,0) {\scriptsize error};
-        \else
-          \node[draw=DeckMuted!70,fill=DeckSoft,minimum width=9mm,minimum height=8mm]
-            (n\x) at (0.85*\x,0) {};
-        \fi
-      }
-      \draw[decorate,decoration={brace,mirror,amplitude=5pt},DeckMuted]
-        (-0.45,-0.55) -- (9.8,-0.55)
-        node[midway,below=6pt] {\small 100,000 tokens of model calls, tools, and observations};
-      \node[warnbox,text width=30mm] (reward) at (4.7,-1.9) {Final reward $\rightarrow A_i<0$};
-    \end{tikzpicture}
-  \end{center}
-
+% Suggested time: 1.6 minutes
+\begin{frame}[t]{Chess exposes trajectory-level credit failure}
   \vspace{1mm}
-  \small
-  \begin{itemize}
-    \item The outcome says \emph{the run failed}, but does not identify the responsible decision.
-    \item GRPO gives the same negative advantage to the one bad action and every good action around it.
-    \item More sibling rollouts improve the comparison; they do not explain the failure.
-  \end{itemize}
+  {\centering
+  \begin{tikzpicture}[node distance=5mm]
+    \node[flowbox,text width=22mm] (state) {Position $s_t$};
+    \node[signalbox,text width=28mm,right=of state] (good) {Good move\\\scriptsize wins a rook};
+    \node[warnbox,text width=28mm,right=of good] (bad) {Eight moves later\\\scriptsize hangs the queen};
+    \node[warnbox,text width=21mm,right=of bad] (loss) {Final result\\\textbf{loss}};
+    \draw[flowarrow] (state) -- (good);
+    \draw[flowarrow] (good) -- (bad);
+    \draw[flowarrow] (bad) -- (loss);
 
-  \vspace{1mm}
-  \begin{center}
-    \textcolor{DeckGold}{\textbf{Outcome}}
-    $\longrightarrow$
-    \textcolor{DeckBlue}{\textbf{responsible trace or step}}
-    $\longrightarrow$
-    \textcolor{DeckTeal}{\textbf{token-level update}}
-  \end{center}
+    \node[draw=DeckRed,fill=DeckRed!7,rounded corners=2pt,align=center,
+      text width=95mm,minimum height=9mm,font=\small,below=7mm of good,
+      xshift=23mm] (grpo)
+      {\textbf{GRPO:} the lost game gives one negative trajectory advantage $A_i<0$ to \emph{both} moves.};
+    \draw[-{Latex[length=2mm]},DeckRed,line width=0.9pt] (grpo.north west) to[bend left=16] (good.south);
+    \draw[-{Latex[length=2mm]},DeckRed,line width=0.9pt] (grpo.north east) to[bend right=16] (bad.south);
+  \end{tikzpicture}
+  \par}
+
+  \vspace{4mm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.31\textwidth}
+      {\large\color{DeckRed}\textbf{1. Outcome: $G_t$}}
+      \vspace{1mm}
+
+      \small \textbf{Who won?} A later blunder can punish an earlier good move. This is the GRPO weakness.
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      {\large\color{DeckGold}\textbf{2. State-relative}}
+      \vspace{1mm}
+
+      \small $G_t-V(s_t)$ asks whether the outcome beat expectation from this position, but still uses the realized future.
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      {\large\color{DeckTeal}\textbf{3. Stepwise critic}}
+      \vspace{1mm}
+
+      \small $r_t+\gamma V(s_{t+1})-V(s_t)$ asks whether this move improved expected return, but trusts the critic.
+    \end{column}
+  \end{columns}
+
+  \vspace{3mm}
+  \centering\textcolor{DeckGold}{\textbf{GRPO knows which game lost; it does not know which move deserved blame.}}
 \end{frame}

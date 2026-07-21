@@ -1,18 +1,32 @@
-% Suggested time: 1 minute
-\begin{frame}[t]{Conclusion}
-  \vspace{3mm}
-  {\LARGE\textbf{Long-horizon agents need richer feedback than one terminal number.}}
+% Suggested time: 1.2 minutes
+\begin{frame}[t]{Conclusion: long-horizon agents need denser feedback}
+  \vspace{1mm}
+  {\Large\textbf{A terminal score verifies the outcome; it rarely explains how to improve.}}
 
-  \vspace{4mm}
-  \begin{enumerate}
-    \setlength{\itemsep}{2mm}
-    \item SFT, RL, OPD, OPSD, and MOPD solve different supervision problems.
-    \item As trajectories grow, feedback must move from outcomes to responsible traces and corrected token distributions.
-    \item Source-grounded curricula and verified model updates can turn post-training into continual domain adaptation.
-  \end{enumerate}
+  \vspace{5mm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.30\textwidth}
+      {\large\color{DeckRed}\textbf{Outcome reward}}
+      \vspace{2mm}
 
-  \vspace{2mm}
-  \begin{center}
-    {\Large\color{DeckTeal}\textbf{Harnesses define the scientific process;\\post-training develops the intelligence inside it.}}
-  \end{center}
+      Confirms success or failure, but compresses an entire trajectory into one number.
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      {\large\color{DeckGold}\textbf{Process feedback}}
+      \vspace{2mm}
+
+      Assigns credit at the trajectory, trace, or action level so good decisions survive later mistakes.
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      {\large\color{DeckTeal}\textbf{Textual feedback}}
+      \vspace{2mm}
+
+      Carries diagnosis, rationale, and corrective strategy that can directly reshape later behavior.
+    \end{column}
+  \end{columns}
+
+  \vspace{6mm}
+  \begin{beamercolorbox}[wd=\textwidth,sep=2mm]{takeaway}
+    \small \textbf{My position:} combine verifiable outcomes with process-level and textual feedback, then automate the loop for continual adaptation. Humans learn from explanations, hints, and targeted practice---not only from ``right'' or ``wrong'' labels.
+  \end{beamercolorbox}
 \end{frame}
