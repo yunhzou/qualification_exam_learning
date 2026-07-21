@@ -1,31 +1,26 @@
 % Suggested time: 1.5 minutes
 \begin{frame}[t]{Research direction 2: autonomous continual post-training}
-  \begin{center}
-    \begin{tikzpicture}[node distance=4mm and 5mm]
-      \node[flowbox,text width=29mm] (sources) {Domain sources\\\scriptsize texts, papers, records};
-      \node[signalbox,right=of sources] (tasks) {Diagnostic tasks};
-      \node[signalbox,right=of tasks] (gap) {Verify and diagnose gaps};
-      \node[signalbox,right=of gap] (curriculum) {Validated curriculum};
-      \node[signalbox,below=8mm of curriculum] (train) {Continual post-training\\\scriptsize SFT, RL, OPSD};
-      \node[flowbox,left=of train] (eval) {Protected evaluation + retention};
-      \node[flowbox,left=of eval] (policy) {Updated domain capability};
-
-      \draw[flowarrow] (sources) -- (tasks);
-      \draw[flowarrow] (tasks) -- (gap);
-      \draw[flowarrow] (gap) -- (curriculum);
-      \draw[flowarrow] (curriculum) -- (train);
-      \draw[flowarrow] (train) -- (eval);
-      \draw[flowarrow] (eval) -- (policy);
-      \draw[flowarrow] (policy.west) -| ++(-6mm,10mm) |- (tasks.south);
-    \end{tikzpicture}
-  \end{center}
-
-  \vspace{1mm}
-  \begin{itemize}
-    \item In-context learning bootstraps a curriculum even in an unfamiliar domain.
-    \item Verified post-training internalizes that contextual competence into model parameters.
-    \item Held-out evaluation and retention tests decide whether an update is promoted or rolled back.
-  \end{itemize}
   \vspace{0mm}
-  {\color{DeckTeal}\textbf{The result is a closed learning system, not one isolated fine-tune.}}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.43\textwidth}
+      \centering
+      \includegraphics[height=0.73\textheight,width=\textwidth,keepaspectratio]{figures/automated_continual_post_training_loop.png}
+      \par
+    \end{column}
+    \begin{column}{0.53\textwidth}
+      \vspace{4mm}
+      \small
+      \begin{itemize}
+        \setlength{\itemsep}{3mm}
+        \item \textcolor{DeckRed}{\textbf{Diagnose:}} reflection separates a local execution mistake from a missing capability.
+        \item \textcolor{DeckTeal}{\textbf{Learn:}} a capability gap triggers targeted curriculum construction and continual post-training.
+        \item \textcolor{DeckBlue}{\textbf{Close the loop:}} practice tasks evaluate the update; success retries the original task and failure recurses.
+      \end{itemize}
+
+      \vspace{2mm}
+      \begin{beamercolorbox}[wd=\textwidth,sep=1.3mm]{takeaway}
+        \small Unfamiliar domains still provide curriculum sources; verified post-training internalizes them.
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
 \end{frame}

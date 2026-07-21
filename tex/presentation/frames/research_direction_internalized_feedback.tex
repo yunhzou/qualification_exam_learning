@@ -1,34 +1,37 @@
-% Suggested time: 1.4 minutes
-\begin{frame}[t]{Research direction 1: internalize feedback generation}
+% Suggested time: 1.5 minutes
+\begin{frame}[t]{Research direction 1: learn to generate the corrective hint}
   \vspace{0mm}
-  {\large\textbf{Current OPSD}}
-  \begin{center}
+  {\normalsize\textbf{OPSD: distill what the hint changes}}
+  {\centering
     \begin{tikzpicture}[node distance=4mm]
-      \node[flowbox] (state1) {Agent state};
-      \node[signalbox,right=of state1] (external) {External grounded hint};
-      \node[signalbox,right=of external] (distill) {Distill corrected distribution};
-      \draw[flowarrow] (state1) -- (external);
-      \draw[flowarrow] (external) -- (distill);
+      \node[flowbox,text width=25mm] (history1) {Trajectory history};
+      \node[signalbox,text width=29mm,right=of history1] (review1) {Reviewer generates hint $h_t$};
+      \node[signalbox,text width=25mm,right=of review1] (inject1) {Inject $h_t$ at correction step};
+      \node[signalbox,text width=26mm,right=of inject1] (opd1) {OPD on later-token distribution};
+      \draw[flowarrow] (history1) -- (review1);
+      \draw[flowarrow] (review1) -- (inject1);
+      \draw[flowarrow] (inject1) -- (opd1);
     \end{tikzpicture}
-  \end{center}
+  \par}
+
+  \vspace{0mm}
+  {\normalsize\textbf{Proposal: supervise the context-changing action itself}}
+  {\centering
+    \begin{tikzpicture}[node distance=4mm]
+      \node[flowbox,text width=25mm] (history2) {Trajectory history};
+      \node[warnbox,text width=29mm,right=of history2] (sft2) {SFT target:\\emit hint $h_t$};
+      \node[signalbox,text width=25mm,right=of sft2] (context2) {$h_t$ enters the live context};
+      \node[signalbox,text width=26mm,right=of context2] (shift2) {Later distribution shifts};
+      \draw[flowarrow] (history2) -- (sft2);
+      \draw[flowarrow] (sft2) -- (context2);
+      \draw[flowarrow] (context2) -- (shift2);
+    \end{tikzpicture}
+  \par}
 
   \vspace{1mm}
-  {\large\textbf{Proposed extension}}
-  \begin{center}
-    \begin{tikzpicture}[node distance=4mm]
-      \node[flowbox] (state2) {Agent state};
-      \node[signalbox,right=of state2] (generate) {Model generates a diagnosis};
-      \node[warnbox,right=of generate] (verify) {Verify the hint};
-      \node[signalbox,right=of verify] (correct) {Generate corrected action};
-      \draw[flowarrow] (state2) -- (generate);
-      \draw[flowarrow] (generate) -- (verify);
-      \draw[flowarrow] (verify) -- (correct);
-    \end{tikzpicture}
-  \end{center}
-
-  \vspace{2mm}
+  \footnotesize
   \begin{itemize}
-    \item Train not only the correction, but the reusable process that produces grounded feedback.
-    \item Verification is essential; plausible but false self-feedback would otherwise reinforce itself.
+    \item \textbf{The supervision moves:} OPSD distills the continuation; the proposal trains the hint tokens directly.
+    \item At inference, the model emits its own hint and conditions later actions on it; false or mistimed hints therefore require gating.
   \end{itemize}
 \end{frame}
