@@ -1,35 +1,37 @@
 % Suggested time: 1.2 minutes
 \begin{frame}[t]{OPD prerequisite: student states must remain teachable}
-  \vspace{1mm}
-  \begin{beamercolorbox}[wd=\textwidth,sep=1.8mm]{takeaway}
-    \centering\Large Solve $2x+3=11$.
+  \vspace{0mm}
+  \begin{beamercolorbox}[wd=\textwidth,sep=1.5mm]{takeaway}
+    \centering\large
+    Labeled case: \textbf{pulmonary embolism}\quad
+    \small chest pain, shortness of breath, swollen leg after a long flight
   \end{beamercolorbox}
 
-  \vspace{5mm}
-  {\large\color{DeckTeal}\textbf{Student remains close}}
+  \vspace{3mm}
+  {\large\color{DeckTeal}\textbf{At the diagnostic pivot}}
   \vspace{1mm}
 
   {\centering
   \begin{tikzpicture}[node distance=6mm]
-    \node[flowbox,text width=37mm] (closeprefix) {Student prefix\\$2x=8,\;x=$};
-    \node[signalbox,text width=36mm,right=of closeprefix] (closelogits) {Teacher logits\\strongly favor $4$};
-    \node[signalbox,text width=31mm,right=of closelogits] (direct) {Directly useful\\supervision};
-    \draw[flowarrow] (closeprefix) -- (closelogits);
-    \draw[flowarrow] (closelogits) -- (direct);
+    \node[warnbox,text width=36mm] (wrong) {Student diagnosis\\\textbf{panic attack}};
+    \node[signalbox,text width=38mm,right=of wrong] (teacher) {Teacher logits favor\\investigating embolism};
+    \node[signalbox,text width=31mm,right=of teacher] (strong) {Strong corrective\\signal};
+    \draw[flowarrow] (wrong) -- (teacher);
+    \draw[flowarrow] (teacher) -- (strong);
   \end{tikzpicture}
   \par}
 
-  \vspace{5mm}
-  {\large\color{DeckRed}\textbf{Student trajectory has diverged}}
+  \vspace{4mm}
+  {\large\color{DeckRed}\textbf{Eight reasoning steps later}}
   \vspace{1mm}
 
   {\centering
   \begin{tikzpicture}[node distance=6mm]
-    \node[warnbox,text width=37mm] (farprefix) {Student prefix\\$2x=14\Rightarrow x=7$};
-    \node[warnbox,text width=36mm,right=of farprefix] (farlogits) {Teacher logits\\favor correcting the premise};
-    \node[flowbox,text width=31mm,right=of farlogits] (repair) {Recovery signal,\\not clean solution};
-    \draw[flowarrow] (farprefix) -- (farlogits);
-    \draw[flowarrow] (farlogits) -- (repair);
+    \node[warnbox,text width=36mm] (prefix) {Student prefix\\anxiety history $\rightarrow$ breathing advice $\rightarrow$ discharge};
+    \node[warnbox,text width=38mm,right=of prefix] (backtrack) {Teacher logits favor\\backtracking and reassessment};
+    \node[flowbox,text width=31mm,right=of backtrack] (overlap) {Little overlap with\\the clean path};
+    \draw[flowarrow] (prefix) -- (backtrack);
+    \draw[flowarrow] (backtrack) -- (overlap);
   \end{tikzpicture}
   \par}
 \end{frame}
