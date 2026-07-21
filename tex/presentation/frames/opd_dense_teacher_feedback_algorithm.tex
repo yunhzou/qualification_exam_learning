@@ -1,63 +1,60 @@
 % Suggested time: 1.4 minutes
-\begin{frame}[t]{Why OPD uses reverse KL: follow a reachable teacher mode}
-  \vspace{1mm}
-  \begin{center}
-    \begin{tikzpicture}[node distance=6mm]
-      \node[signalbox,text width=30mm] (sample) {Student samples\\a prefix $s_t$};
-      \node[flowbox,text width=33mm,right=of sample] (teacher) {Teacher supplies\\$Q_t(\cdot\mid s_t)$};
-      \node[signalbox,text width=42mm,right=of teacher] (update) {Update student with\\$D_{\mathrm{KL}}(P_t\|Q_t)$};
-      \draw[flowarrow] (sample) -- (teacher);
-      \draw[flowarrow] (teacher) -- (update);
-    \end{tikzpicture}
-  \end{center}
-
-  \vspace{1mm}
+\begin{frame}[t]{OPD: dense feedback on student-generated states}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.49\textwidth}
-      \centering
-      {\large\bfseries Forward KL: cover both modes}\\[-1mm]
-      {\small $D_{\mathrm{KL}}(Q_{\mathrm{teacher}}\|P_{\mathrm{student}})$}
-
-      \begin{tikzpicture}[x=0.76cm,y=1.45cm]
-        \draw[->,DeckMuted] (-2.7,0) -- (2.8,0);
-        \draw[DeckInk,very thick,domain=-2.6:2.6,samples=80,smooth]
-          plot (\x,{0.95*exp(-((\x+1.25)^2)/0.18)+0.95*exp(-((\x-1.25)^2)/0.18)});
-        \draw[DeckMuted,thick,dashed,domain=-2.6:2.6,samples=80,smooth]
-          plot (\x,{0.56*exp(-((\x-0.45)^2)/1.25)});
-        \draw[DeckGold,very thick,domain=-2.6:2.6,samples=80,smooth]
-          plot (\x,{0.57*exp(-((\x)^2)/3.0)});
-        \node[font=\scriptsize,text=DeckGold,align=center] at (0,0.76)
-          {one broad Gaussian\\pays for missing either peak};
-      \end{tikzpicture}
+    \begin{column}{0.50\textwidth}
+      \small
+      \begin{enumerate}
+        \item The student samples its own trajectory.
+        \item An external teacher scores the next-token distribution at each student prefix.
+        \item Reverse KL pulls the student toward the teacher on states the student actually visits.
+      \end{enumerate}
     \end{column}
-    \begin{column}{0.49\textwidth}
-      \centering
-      {\large\bfseries Reverse KL: choose a nearby mode}\\[-1mm]
-      {\small $D_{\mathrm{KL}}(P_{\mathrm{student}}\|Q_{\mathrm{teacher}})$}
+    \begin{column}{0.47\textwidth}
+      \vspace{-2mm}
+      \[
+        P_t=\pi_\theta(\cdot\mid s_t),\qquad
+        Q_t=\pi_T(\cdot\mid s_t)
+      \]
+      \vspace{-3mm}
+      \[
+        \mathcal L_{\mathrm{OPD}}=\sum_t D_{\mathrm{KL}}(P_t\|Q_t)
+      \]
 
-      \begin{tikzpicture}[x=0.76cm,y=1.45cm]
-        \draw[->,DeckMuted] (-2.7,0) -- (2.8,0);
-        \draw[DeckInk,very thick,domain=-2.6:2.6,samples=80,smooth]
-          plot (\x,{0.95*exp(-((\x+1.25)^2)/0.18)+0.95*exp(-((\x-1.25)^2)/0.18)});
-        \draw[DeckMuted,thick,dashed,domain=-2.6:2.6,samples=80,smooth]
-          plot (\x,{0.56*exp(-((\x-0.45)^2)/1.25)});
-        \draw[DeckTeal,very thick,domain=-2.6:2.6,samples=80,smooth]
-          plot (\x,{0.90*exp(-((\x-1.25)^2)/0.19)});
-        \node[font=\scriptsize,text=DeckTeal,align=center] at (-0.65,0.76)
-          {student mass overlaps here\\so training commits here};
+      \vspace{-2mm}
+      \centering
+      \begin{tikzpicture}[x=0.34cm,y=0.62cm]
+        \begin{scope}[xshift=-1.75cm]
+          \node[font=\tiny\bfseries] at (0,1.18) {Forward: covering};
+          \draw[->,DeckMuted] (-2.25,0) -- (2.35,0);
+          \draw[DeckInk,thick,domain=-2.15:2.15,samples=60,smooth]
+            plot (\x,{0.82*exp(-((\x+1.0)^2)/0.16)+0.82*exp(-((\x-1.0)^2)/0.16)});
+          \draw[DeckMuted,dashed,domain=-2.15:2.15,samples=60,smooth]
+            plot (\x,{0.46*exp(-((\x-0.35)^2)/1.05)});
+          \draw[DeckGold,very thick,domain=-2.15:2.15,samples=60,smooth]
+            plot (\x,{0.46*exp(-((\x)^2)/2.2)});
+        \end{scope}
+        \begin{scope}[xshift=1.75cm]
+          \node[font=\tiny\bfseries] at (0,1.18) {Reverse: seeking};
+          \draw[->,DeckMuted] (-2.25,0) -- (2.35,0);
+          \draw[DeckInk,thick,domain=-2.15:2.15,samples=60,smooth]
+            plot (\x,{0.82*exp(-((\x+1.0)^2)/0.16)+0.82*exp(-((\x-1.0)^2)/0.16)});
+          \draw[DeckMuted,dashed,domain=-2.15:2.15,samples=60,smooth]
+            plot (\x,{0.46*exp(-((\x-0.35)^2)/1.05)});
+          \draw[DeckTeal,very thick,domain=-2.15:2.15,samples=60,smooth]
+            plot (\x,{0.79*exp(-((\x-1.0)^2)/0.17)});
+        \end{scope}
       \end{tikzpicture}
+
+      \vspace{-1mm}
+      {\tiny black: teacher\quad dashed: initial\quad color: result}
     \end{column}
   \end{columns}
 
-  \vspace{0.5mm}
-  \centering
-  \scriptsize
-  \textcolor{DeckInk}{\rule{4mm}{1.1pt}} teacher (two modes)\quad
-  \textcolor{DeckMuted}{- - -} initial student\quad
-  \textcolor{DeckGold}{\rule{4mm}{1.1pt}} forward result\quad
-  \textcolor{DeckTeal}{\rule{4mm}{1.1pt}} reverse result
-
-  \vspace{1mm}
-  {\small OPD trains on student-visited prefixes, so reverse KL emphasizes teacher behavior that remains reachable from those states
-  \citep{agarwal2024onpolicy,lu2025onpolicydistillation}.}
+  \vspace{-1mm}
+  {\centering
+    \includegraphics[width=0.65\textwidth]{figures/thinking_machines_opd_token_feedback.png}\par
+    \vspace{-2mm}
+    {\scriptsize Red tokens are locally unlikely under the teacher at the student's exact prefix
+    \citep{agarwal2024onpolicy,lu2025onpolicydistillation}.}\par
+  }
 \end{frame}
