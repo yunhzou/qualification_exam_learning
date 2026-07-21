@@ -4,9 +4,9 @@
     \begin{column}{0.52\textwidth}
       {\large\textbf{Algorithm}}
       \begin{enumerate}
-        \item Collect a desired conversation or agent trace.
-        \item Keep user messages and tool responses as context.
-        \item Train only on demonstrated assistant tokens.
+        \item Collect a desired agent trace.
+        \item Use user and tool messages as context.
+        \item Train on demonstrated assistant tokens only.
       \end{enumerate}
 
       \vspace{3mm}
@@ -28,5 +28,10 @@
     \end{column}
   \end{columns}
 
-  {\small\color{DeckRed}\textbf{Limit:} SFT demonstrates the desired path; it does not teach recovery from unseen self-generated mistakes.}
+  \vspace{1mm}
+  \begin{beamercolorbox}[wd=\textwidth,sep=1.2mm]{takeaway}
+    \small
+    \textcolor{DeckRed}{\textbf{Coverage:}} demonstrations show the desired path, not recovery from self-generated errors.\\[0.7mm]
+    \textcolor{DeckRed}{\textbf{Catastrophic forgetting:}} forcing every target token can overwrite prior behavior. RL and OPD usually shift less because they train on the model's own samples.
+  \end{beamercolorbox}
 \end{frame}
