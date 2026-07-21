@@ -26,7 +26,7 @@ jobs:
           chmod +x tectonic
           echo "TECTONIC=$PWD/tectonic" >> "$GITHUB_ENV"
 
-      - name: Compile report and presentation
+      - name: Compile LaTeX documents
         run: python scripts/build.py all
 
       - name: Upload PDFs
@@ -36,3 +36,4 @@ jobs:
           path: |
             build/main.pdf
             build/presentation.pdf
+            build/hinted_sft_proposal.pdf

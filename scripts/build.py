@@ -1,4 +1,4 @@
-"""Compile the qualification-exam report and presentation with Tectonic."""
+"""Compile the qualification-exam documents with Tectonic."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ BUILD_DIR = ROOT / "build"
 DOCUMENTS = {
     "report": ROOT / "main.tex",
     "presentation": ROOT / "presentation.tex",
+    "hinted-sft-proposal": ROOT / "hinted_sft_proposal.tex",
 }
 
 

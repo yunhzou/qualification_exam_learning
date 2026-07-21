@@ -1,0 +1,79 @@
+\section{The causal-support problem}
+
+Here, \emph{causal support} is an operational training criterion, not a claim of formal
+causal identification. A target action is causally supported when the variables that
+justify the correction are present in, or can be obtained by an allowed action from, the
+student's deployment state. Figure~\ref{fig:causal-support-gap} contrasts a supported
+correction with an impossible hidden-information target.
+
+\begin{figure}[ht]
+  \centering
+  \begin{minipage}[t]{0.47\textwidth}
+    \centering
+    \textbf{Supported correction}\\[1mm]
+    \begin{tikzpicture}[node distance=5mm]
+      \node[supportedbox,text width=50mm] (state)
+        {Visible state $x$\\tool list: Search, ReadFile\\result: RunSQL not found};
+      \node[supportedbox,text width=50mm,below=of state] (hint)
+        {Grounded hint $h$\\use Search or ReadFile};
+      \node[actionbox,text width=50mm,below=of hint] (action)
+        {Corrected action\\call an available tool};
+      \draw[proposalarrow] (state) -- node[right,font=\scriptsize]{infer} (hint);
+      \draw[proposalarrow] (hint) -- node[right,font=\scriptsize]{condition} (action);
+    \end{tikzpicture}
+
+    \smallskip
+    \small The hint is recoverable from the same evidence available at deployment.
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \centering
+    \textbf{Unsupported privileged target}\\[1mm]
+    \begin{tikzpicture}
+      \node[proposalbox,text width=45mm] (student) at (0,0)
+        {Student observes only $x$:\\request failed; no error body};
+      \node[riskbox,text width=45mm] (conflict) at (0,-1.35)
+        {One $P_\theta(\cdot\mid x)$ receives\\two incompatible KL targets};
+      \node[actionbox,text width=24mm] (aa) at (-1.65,-2.85)
+        {Hidden $z=A$\\refresh token};
+      \node[actionbox,text width=24mm] (ab) at (1.65,-2.85)
+        {Hidden $z=B$\\change URL};
+      \draw[riskarrow] (student) -- (conflict);
+      \draw[riskarrow] (conflict) -- (aa);
+      \draw[riskarrow] (conflict) -- (ab);
+    \end{tikzpicture}
+
+    \smallskip
+    \small The teacher sees $z$; the student cannot know which incompatible action is justified.
+  \end{minipage}
+  \caption{\textbf{Why privileged conditioning can create unsupported supervision.}
+  OPSD is well supported when the hint is inferable from the student's state (left).
+  When a hidden variable produces incompatible teacher targets for the same observed
+  state (right), pulling the student toward either target cannot teach the missing
+  dependency.}
+  \label{fig:causal-support-gap}
+\end{figure}
+
+The failure is clearest under counterfactual variation. Suppose two training examples have
+the same visible prefix $x$ but different hidden evidence $z$. The teacher sees $z$ and
+therefore prefers different continuations $Q(\cdot\mid x,z)$. The student implements only
+$P_\theta(\cdot\mid x)$. Minimizing divergence to both teachers cannot recover the
+conditional policy; it can only fit a compromise weighted by the training frequency of
+the hidden cases. On an imbalanced dataset, that compromise may look capable while merely
+repeating the majority answer. Under a distribution shift, it appears as hallucination.
+
+This problem has been observed in adjacent form: privileged self-distillation can leak
+answer information and destabilize long training when the teacher signal is not anchored
+by environment-derived correctness \citep{yang2026selfdistilledrlvr}. The appropriate
+response is not to discard dense self-distillation. It is to separate three cases:
+
+\begin{enumerate}
+  \item \textbf{Restated evidence:} the hint names information already in $x$. OPSD and
+  hinted SFT are both plausible.
+  \item \textbf{Obtainable evidence:} the information is not yet in $x$ but can be acquired
+  with an allowed tool or observation. The model should learn to acquire it before
+  generating the hint.
+  \item \textbf{Unavailable evidence:} the information exists only in a private answer,
+  hidden test, or future observation. Neither method should claim autonomous causal
+  competence; the system must expose the evidence, defer, or abstain.
+\end{enumerate}

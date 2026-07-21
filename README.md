@@ -13,6 +13,8 @@ The concrete milestones and handbook-based exam constraints are recorded in [GOA
 
 - `main.tex`: written qualification-exam report; this is the main file to select in Overleaf.
 - `presentation.tex`: Beamer presentation.
+- `hinted_sft_proposal.tex`: standalone proposal for learning to generate grounded
+  corrective hints as an explicit alternative or complement to OPSD.
 - `GOALS.md`: learning goals, deliverables, and qualification-exam requirements.
 - `learning_list.md`: the evolving topic map for the LLM training curriculum.
 - `notebooks/`: algorithm-focused, executable learning modules.
@@ -38,13 +40,16 @@ winget install --id Python.Python.3.12 --exact
 # Create .venv and install Tectonic 0.16.9 under .tools/.
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap.ps1
 
-# Compile both documents.
+# Compile the report, presentation, and proposal.
 .\.venv\Scripts\python.exe scripts/build.py all
 ```
 
-Generated PDFs are written to `build/main.pdf` and `build/presentation.pdf`. Compile only one target with `scripts/build.py report` or `scripts/build.py presentation`.
+Generated PDFs are written to `build/main.pdf`, `build/presentation.pdf`, and
+`build/hinted_sft_proposal.pdf`. Compile only one target with
+`scripts/build.py report`, `scripts/build.py presentation`, or
+`scripts/build.py hinted-sft-proposal`.
 
-GitHub Actions runs the same build for every push and pull request and uploads both PDFs as a workflow artifact.
+GitHub Actions runs the same build for every push and pull request and uploads all PDFs as a workflow artifact.
 
 ## Required verification workflow
 

@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[colorlinks=true,allcolors=blue!55!black]{hyperref}
+\usetikzlibrary{arrows.meta,fit,positioning}
+
+\geometry{margin=0.85in}
+\setlist{nosep}
+
+\definecolor{ProposalInk}{HTML}{17212B}
+\definecolor{ProposalTeal}{HTML}{147D78}
+\definecolor{ProposalBlue}{HTML}{3568A8}
+\definecolor{ProposalGold}{HTML}{B87521}
+\definecolor{ProposalRed}{HTML}{B94747}
+\definecolor{ProposalSoft}{HTML}{EEF2F3}
+\definecolor{ProposalMuted}{HTML}{5D6872}
+
+\tikzset{
+  proposalbox/.style={draw=ProposalMuted,fill=white,rounded corners=2pt,
+    align=center,minimum height=9mm,text width=30mm,font=\small,inner sep=2mm},
+  supportedbox/.style={proposalbox,draw=ProposalTeal,fill=ProposalTeal!8},
+  actionbox/.style={proposalbox,draw=ProposalBlue,fill=ProposalBlue!7},
+  riskbox/.style={proposalbox,draw=ProposalRed,fill=ProposalRed!7},
+  proposalarrow/.style={-{Latex[length=2.2mm]},line width=0.8pt,draw=ProposalMuted},
+  riskarrow/.style={-{Latex[length=2.2mm]},line width=0.8pt,draw=ProposalRed}
+}
+
+\input{tex/proposals/hinted_sft/document_metadata}
+
+\begin{document}
+\maketitle
+\input{tex/proposals/hinted_sft/research_question_and_position}
+\input{tex/proposals/hinted_sft/causal_support_failure}
+\input{tex/proposals/hinted_sft/hinted_sft_training_method}
+\input{tex/proposals/hinted_sft/experimental_design}
+\input{tex/proposals/hinted_sft/risks_and_expected_contribution}
+
+\begingroup
+\small
+\raggedright
+\setlength{\bibsep}{1pt}
+\bibliographystyle{plainnat}
+\bibliography{references}
+\endgroup
+\end{document}

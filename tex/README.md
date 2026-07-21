@@ -37,6 +37,12 @@ The `shared/qualification_exam_reference_corpus.tex` module owns the common
 bibliography corpus used by both the report and presentation. Add a source there
 when it must appear in both reference lists.
 
+## Proposal modules
+
+Standalone research proposals use their own composition roots and place substantive
+modules under `proposals/<proposal_name>/`. The hinted-SFT proposal is composed by
+`hinted_sft_proposal.tex` from modules under `proposals/hinted_sft/`.
+
 ## Naming rules
 
 Use descriptive snake-case filenames that state both the subject and its role, for example `composer2_5_targeted_textual_feedback.tex`. Do not use names such as `paper-06.tex`, `notes.tex`, or `misc.tex`. A reader should know which file to edit without opening it.

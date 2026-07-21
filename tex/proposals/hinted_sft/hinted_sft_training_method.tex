@@ -1,0 +1,108 @@
+\section{Proposed method: hinted SFT}
+
+Hinted SFT separates \emph{discovering the correction} from \emph{acting under the
+correction}. The first stage trains the missing intermediate directly. The second stage
+ensures that later actions actually depend on that intermediate. Figure~\ref{fig:hinted-sft}
+shows the complete training and deployment paths.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[node distance=5mm,scale=0.80,transform shape]
+    \node[font=\bfseries,text=ProposalInk,anchor=east] (trainlabel) at (-6.2,0) {Training};
+    \node[proposalbox,text width=29mm] (trainstate) at (-4.2,0)
+      {Visible state $x$\\history + evidence};
+    \node[supportedbox,text width=29mm,right=of trainstate] (reviewer)
+      {Reviewer creates\\verified hint $h^\star$};
+    \node[actionbox,text width=29mm,right=of reviewer] (hintloss)
+      {SFT on\\hint tokens};
+    \node[supportedbox,text width=29mm,right=of hintloss] (context)
+      {Append $h^\star$\\to live context};
+    \node[actionbox,text width=29mm,right=of context] (contloss)
+      {Train or evaluate\\the continuation};
+    \draw[proposalarrow] (trainstate) -- (reviewer);
+    \draw[proposalarrow] (reviewer) -- (hintloss);
+    \draw[proposalarrow] (hintloss) -- (context);
+    \draw[proposalarrow] (context) -- (contloss);
+
+    \node[font=\bfseries,text=ProposalInk,anchor=east] (deploylabel) at (-6.2,-2.0) {Deployment};
+    \node[proposalbox,text width=29mm] (deploystate) at (-4.2,-2.0)
+      {Visible state $x$\\history + evidence};
+    \node[actionbox,text width=29mm,right=of deploystate] (generate)
+      {Model generates\\self-hint $\hat h$};
+    \node[supportedbox,text width=29mm,right=of generate] (gate)
+      {Grounding gate\\accept / retrieve / abstain};
+    \node[supportedbox,text width=29mm,right=of gate] (livecontext)
+      {Append $\hat h$\\to live context};
+    \node[actionbox,text width=29mm,right=of livecontext] (act)
+      {Model acts\\under $\hat h$};
+    \draw[proposalarrow] (deploystate) -- (generate);
+    \draw[proposalarrow] (generate) -- (gate);
+    \draw[proposalarrow] (gate) -- (livecontext);
+    \draw[proposalarrow] (livecontext) -- (act);
+
+    \node[riskbox,text width=40mm,below=6mm of gate] (verify)
+      {Environment verifies outcome\\and stores grounded failures};
+    \draw[proposalarrow] (act.south) |- (verify.east);
+    \draw[proposalarrow,dashed] (verify.west) -| node[below left,font=\scriptsize]{next training round} (generate.south);
+  \end{tikzpicture}
+  \caption{\textbf{Hinted SFT makes the correction an explicit causal intermediate.}
+  Training supervises the hint that the model must later generate. Deployment conditions
+  the continuation on the model's own accepted hint, while the environment supplies
+  evidence for verification and subsequent data generation.}
+  \label{fig:hinted-sft}
+\end{figure}
+
+\subsection{Training unit}
+
+Each example contains four aligned objects:
+\[
+  (x,\ e,\ h^\star,\ y^\star),
+\]
+where $x$ is the trajectory prefix, $e$ is deployment-visible evidence, $h^\star$ is a
+short verified diagnosis or constraint, and $y^\star$ is an optional corrected
+continuation. The serialized trace can use an explicit internal channel:
+\[
+  [x;\ e;\ \texttt{<reflection>}\ h^\star\ \texttt{</reflection>};\ y^\star].
+\]
+The reflection channel need not be shown to the user, but it must be present in the
+model's autoregressive context before $y^\star$. This ordering is essential: a diagnosis
+generated after the action is a rationalization, not a cause of that action.
+
+The core hint loss is ordinary response-masked SFT:
+\[
+  \mathcal L_{\mathrm{hint}}
+  =-\frac{1}{|h^\star|}\sum_j
+    \log \pi_\theta(h^\star_j\mid x,e,h^\star_{<j}).
+\]
+System instructions, user input, and environment evidence remain context; the verified
+hint tokens are the primary targets. Three continuation variants should be compared:
+
+\begin{enumerate}
+  \item \textbf{Hint only (HSFT-H):} train only $\mathcal L_{\mathrm{hint}}$ and allow the
+  existing policy to respond to the generated hint.
+  \item \textbf{Hint plus continuation (HSFT-HC):} add SFT loss on $y^\star$. This is
+  stronger behavior cloning but may increase forgetting.
+  \item \textbf{Hint plus on-policy continuation (HSFT-H+OPD/RL):} train the hint with SFT,
+  then sample continuations under the generated hint and improve them with dense
+  distillation or verified reward. This tests whether explicit hint generation and OPSD
+  are complementary rather than mutually exclusive.
+\end{enumerate}
+
+\subsection{On-policy self-hint refinement}
+
+Teacher-forcing $h^\star$ during training creates its own train--test mismatch: deployment
+uses $\hat h\sim\pi_\theta(\cdot\mid x,e)$. The proposal therefore uses three stages.
+
+\begin{enumerate}
+  \item \textbf{Bootstrap:} SFT on verified reviewer hints.
+  \item \textbf{Self-hint rollout:} sample $\hat h$ from the current model before acting.
+  A verifier checks whether every factual claim in $\hat h$ is supported by $x$, $e$, or
+  an allowed retrieval.
+  \item \textbf{Iterative correction:} retain successful self-hints; relabel rejected
+  hints with a grounded correction or an abstention target, then retrain. Continuations
+  are always generated with the accepted self-hint in context.
+\end{enumerate}
+
+This loop prevents the proposal from hiding the original problem behind a new privileged
+hint generator. The deployed model must demonstrate that it can generate the intermediate
+from available evidence, not merely consume it.

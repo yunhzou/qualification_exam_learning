@@ -1,0 +1,72 @@
+\section{Experimental design}
+
+\subsection{Tasks and controlled information regimes}
+
+The core experiment should manipulate whether corrective evidence is available while
+holding the surface task fixed. Three agentic task families provide increasing horizon:
+
+\begin{enumerate}
+  \item \textbf{Tool selection:} an agent chooses among tools after an invalid call.
+  Available-tool declarations and error messages can be shown, retrievable, or hidden.
+  \item \textbf{Program repair:} an agent fixes a repository after a test failure. The
+  failing assertion, stack trace, or hidden-test diagnosis can be independently exposed.
+  \item \textbf{Long-horizon recovery:} a coding agent receives a localized tool,
+  planning, or context management failure inside a multi-step rollout and must diagnose
+  it before continuing.
+\end{enumerate}
+
+Every task instance is rendered in three regimes: \emph{visible evidence}, \emph{evidence
+obtainable through an allowed action}, and \emph{evidence unavailable}. This prevents a
+method from receiving credit for memorizing the majority hidden answer. Counterfactual
+pairs share the same visible prefix but differ in one causal variable and therefore require
+different hints and actions.
+
+\subsection{Baselines}
+
+\begin{center}
+\begin{tabular}{p{0.25\textwidth}p{0.64\textwidth}}
+  \toprule
+  \textbf{Method} & \textbf{What it tests} \\
+  \midrule
+  Direct SFT & Clone corrected actions without an explicit diagnosis. \\
+  OPSD & Pull the unhinted student distribution toward a privileged
+  hint-conditioned teacher \citep{shenfeld2026selfdistillation,cursor2026composer25}. \\
+  Reward-only RL & Learn from task success without semantic localization. \\
+  HSFT-H & Train only the explicit hint generator. \\
+  HSFT-HC & Train both hint and corrected continuation. \\
+  HSFT-H+OPD/RL & Generate the hint explicitly, then improve the on-policy continuation. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Metrics and falsification tests}
+
+\begin{enumerate}
+  \item \textbf{Task success:} verified completion under visible, retrievable, and hidden
+  evidence.
+  \item \textbf{Hint grounding:} fraction of hint claims entailed by the visible state or
+  an allowed retrieval result.
+  \item \textbf{Counterfactual sensitivity:} when one evidence variable changes, does the
+  hint and action change in the required direction?
+  \item \textbf{Unsupported-action rate:} how often does the model confidently choose a
+  correction whose required evidence is absent?
+  \item \textbf{Causal mediation:} remove or shuffle the generated hint before the
+  continuation. If performance does not fall, the model is not using the claimed
+  intermediate.
+  \item \textbf{Long-horizon stability:} success and hint accuracy as the distance from
+  evidence to correction increases.
+  \item \textbf{Retention and efficiency:} old-task regression, tokens generated, and
+  optimizer tokens per acquired correction.
+\end{enumerate}
+
+\paragraph{Primary hypothesis.}
+Under visible or retrievable evidence, hinted SFT will reduce unsupported corrections and
+improve counterfactual sensitivity relative to OPSD while retaining more prior capability
+than full continuation SFT. Under unavailable evidence, a properly gated hinted-SFT model
+should abstain or retrieve rather than appear accurate through answer leakage.
+
+\paragraph{Falsification criteria.}
+The proposal is weakened if OPSD matches hinted SFT on counterfactual pairs, hint removal
+does not reduce hinted-SFT performance, or explicit hints increase error propagation
+without improving localization. It is rejected as a causal account if the model succeeds
+in the hidden-evidence regime only because of dataset imbalance or contamination.
