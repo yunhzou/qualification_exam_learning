@@ -1,0 +1,54 @@
+% Suggested time: 1.5 minutes
+\begin{frame}[t]{GRPO update: importance sampling, clipping, and KL}
+  \small
+  Rollouts $o_i$ are sampled by a fixed behavior policy $\pi_{\mathrm{old}}$, then reused for several optimizer steps. Define
+  \[
+    \rho_{i,t}(\theta)
+    =\frac{\pi_\theta(o_{i,t}\mid q,o_{i,<t})}
+           {\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,<t})},
+    \qquad
+    \ell^{\mathrm{clip}}_{i,t}
+    =\min\!\left(\rho_{i,t}A_i,
+      \operatorname{clip}(\rho_{i,t},1-\epsilon,1+\epsilon)A_i\right).
+  \]
+
+  \vspace{-1mm}
+  \begin{beamercolorbox}[wd=\textwidth,sep=1.3mm]{takeaway}
+    \[
+      \boxed{
+      \mathcal J_{\mathrm{GRPO}}(\theta)
+      =\mathbb E_{\substack{q\sim P(Q)\\o_{1:G}\sim\pi_{\mathrm{old}}}}
+      \!\left[
+        \frac{1}{G}\sum_{i=1}^{G}\frac{1}{T_i}\sum_{t=1}^{T_i}
+        \left(
+          \ell^{\mathrm{clip}}_{i,t}
+          -\beta D_{\mathrm{KL}}\!\left(
+            \pi_\theta(\cdot\mid s_{i,t})\,\|\,\pi_{\mathrm{ref}}(\cdot\mid s_{i,t})
+          \right)
+        \right)
+      \right] }
+    \]
+  \end{beamercolorbox}
+
+  \vspace{2mm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.32\textwidth}
+      {\color{DeckBlue}\textbf{Importance ratio}}
+
+      \footnotesize Corrects the expectation because the batch came from $\pi_{\mathrm{old}}$, not the updated policy.
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      {\color{DeckGold}\textbf{Clipping}}
+
+      \footnotesize When policies drift, the ratio becomes high variance; clipping limits how much stale data can move the policy.
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      {\color{DeckTeal}\textbf{Reference KL}}
+
+      \footnotesize $\pi_{\mathrm{ref}}$ is the frozen starting model. The penalty protects general behavior from a narrow reward.
+    \end{column}
+  \end{columns}
+
+  \vspace{0mm}
+  {\scriptsize\textbf{Do not confuse the policies:} $\pi_{\mathrm{old}}$ generated this rollout batch; $\pi_{\mathrm{ref}}$ anchors the entire training run.}
+\end{frame}
