@@ -47,3 +47,12 @@
 - Keep one conceptual responsibility per module. If a module mixes derivation, buffering, asynchronous execution, and an unrelated paper discussion, split it according to the dependency order.
 - Prefer the teaching sequence: direct algorithm overview; definitions and training units; step-by-step derivation; numerical example; executable implementation; compute and storage; execution variants; limitations; historical comparison and later papers.
 - Treat reader confusion as evidence of a missing prerequisite or transition, not as a reason to add more formulas or terminology.
+
+## Presentation design principles
+
+- Treat slides as prompts for oral explanation, not as a script to read. Prefer one concrete
+  example, a visual causal sequence, and a one-line conclusion over explanatory paragraphs.
+- Put extended derivations, qualifications, and speaking guidance in a separate notes document;
+  do not compress them into the visible slide.
+- When presenting an abstract limitation, show a vivid example that the presenter can reason
+  through aloud. Keep only the states, decisions, and contrast needed to support that explanation.

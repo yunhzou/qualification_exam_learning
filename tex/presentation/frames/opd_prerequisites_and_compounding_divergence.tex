@@ -1,43 +1,35 @@
 % Suggested time: 1.2 minutes
 \begin{frame}[t]{OPD prerequisite: student states must remain teachable}
-  \vspace{0mm}
+  \vspace{1mm}
+  \begin{beamercolorbox}[wd=\textwidth,sep=1.8mm]{takeaway}
+    \centering\Large Solve $2x+3=11$.
+  \end{beamercolorbox}
+
+  \vspace{5mm}
+  {\large\color{DeckTeal}\textbf{Student remains close}}
+  \vspace{1mm}
+
   {\centering
-  \begin{tikzpicture}[node distance=5mm]
-    \node[flowbox,text width=24mm] (task) {Task state\\\scriptsize required data present};
-    \node[warnbox,text width=27mm,right=of task] (delete) {Student calls\\\texttt{delete(data/)}};
-    \node[warnbox,text width=25mm,right=of delete] (gone) {Environment\\\scriptsize data is gone};
-    \node[signalbox,text width=30mm,right=of gone] (recover) {Teacher logits\\\scriptsize recovery from damage};
-    \draw[flowarrow] (task) -- (delete);
-    \draw[flowarrow] (delete) -- (gone);
-    \draw[flowarrow] (gone) -- (recover);
+  \begin{tikzpicture}[node distance=6mm]
+    \node[flowbox,text width=37mm] (closeprefix) {Student prefix\\$2x=8,\;x=$};
+    \node[signalbox,text width=36mm,right=of closeprefix] (closelogits) {Teacher logits\\strongly favor $4$};
+    \node[signalbox,text width=31mm,right=of closelogits] (direct) {Directly useful\\supervision};
+    \draw[flowarrow] (closeprefix) -- (closelogits);
+    \draw[flowarrow] (closelogits) -- (direct);
   \end{tikzpicture}
   \par}
 
+  \vspace{5mm}
+  {\large\color{DeckRed}\textbf{Student trajectory has diverged}}
   \vspace{1mm}
-  \begin{beamercolorbox}[wd=\textwidth,sep=1.2mm]{takeaway}
-    \centering\small The teacher can reject the destructive call at that token, but after execution it can only score continuations from the damaged state.
-  \end{beamercolorbox}
 
-  \vspace{0mm}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.47\textwidth}
-      {\large\color{DeckTeal}\textbf{Meaningful supervision}}
-      \small
-      \begin{itemize}
-        \item At the bad action, teacher logits favor a safe alternative.
-        \item From a recoverable mistake, the teacher can teach correction behavior.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.49\textwidth}
-      {\large\color{DeckRed}\textbf{When it weakens}}
-      \small
-      \begin{itemize}
-        \item A weak student visits prefixes far from the teacher's useful solution manifold.
-        \item Later-token guidance becomes damage control rather than the intended strategy.
-      \end{itemize}
-    \end{column}
-  \end{columns}
-
-  \vspace{1mm}
-  {\footnotesize\textbf{Need:} policy overlap, teacher competence on visited prefixes, recoverable segments, and iterative resampling.}
+  {\centering
+  \begin{tikzpicture}[node distance=6mm]
+    \node[warnbox,text width=37mm] (farprefix) {Student prefix\\$2x=14\Rightarrow x=7$};
+    \node[warnbox,text width=36mm,right=of farprefix] (farlogits) {Teacher logits\\favor correcting the premise};
+    \node[flowbox,text width=31mm,right=of farlogits] (repair) {Recovery signal,\\not clean solution};
+    \draw[flowarrow] (farprefix) -- (farlogits);
+    \draw[flowarrow] (farlogits) -- (repair);
+  \end{tikzpicture}
+  \par}
 \end{frame}
