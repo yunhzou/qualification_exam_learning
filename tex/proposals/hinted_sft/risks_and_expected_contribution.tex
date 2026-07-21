@@ -1,50 +1,30 @@
-\section{Risks, scope, and expected contribution}
+\section{Expected result and scope}
 
-\paragraph{Rationalization instead of reasoning.}
-A model may generate a plausible explanation for an action it had already selected
-internally. The intervention test is structural: generate the hint first, alter or remove
-it before decoding the action, and measure whether the action distribution changes
-appropriately.
+The expected advantage is not a stronger optimizer. It is a cleaner causal sequence:
+\[
+  \text{trajectory evidence}
+  \longrightarrow
+  \text{generated thought}
+  \longrightarrow
+  \text{later behavior}.
+\]
+OPSD may remain more efficient when the desired correction is only a local probability
+shift and the intermediate thought is unimportant. Hinted SFT is more appropriate when
+the diagnosis should become part of the model's ongoing reasoning and influence several
+later decisions.
 
-\paragraph{Hint hallucination.}
-Explicit text can amplify confidence in a false premise. Hints should cite evidence spans,
-tool outputs, or retrieved artifacts; a grounding gate should reject unsupported claims.
-The target for unavailable evidence is retrieval or abstention, not a fabricated
-diagnosis.
+The main risk is that the model learns a generic sentence without using it. This is why
+the hint-removal test matters. A second risk is training unsupported hints, which would
+teach confident guesses. The dataset should therefore contain only hints justified by
+the trajectory available before the hint.
 
-\paragraph{Reflection overhead and collapse.}
-Always generating long reflections increases inference cost and can collapse into generic
-phrases. Hints should be short, localized, and triggered by a learned gate. A no-hint
-action remains available when confidence is high and no correction is needed.
+The proposed contribution is a simple data and masking choice:
 
-\paragraph{Exposure bias and compounding errors.}
-Training only on reviewer hints leaves the continuation unprepared for imperfect
-self-hints. The staged self-hint rollout is therefore part of the method rather than an
-optional implementation detail. Robustness should be measured under deliberately
-perturbed but plausible hints.
+\begin{center}
+  \textbf{Insert the desired realization as assistant thinking, train only those hint
+  tokens, and mask everything else.}
+\end{center}
 
-\paragraph{Where OPSD may remain preferable.}
-OPSD may be more efficient when the desired change is stylistic, when a hint merely
-reweights already obvious alternatives, or when printing an intermediate adds no useful
-control surface. Dense KL feedback can also reduce forgetting relative to strong
-off-policy SFT. The proposal predicts a benefit specifically when an agent should
-\emph{discover, expose, and reuse} a diagnosis during a long trajectory.
-
-\paragraph{Expected contribution.}
-The intended contribution is not a new loss function. It is a training decomposition and
-evaluation protocol:
-
-\begin{enumerate}
-  \item define whether privileged feedback is supported by deployment-visible evidence;
-  \item train the model to generate the missing, grounded intermediate when it is
-  inferable;
-  \item place that intermediate in the live context before the corrected action;
-  \item verify causal use through counterfactual, removal, and hidden-evidence tests; and
-  \item combine explicit semantic correction with OPD or RL only after the intermediate is
-  available to the acting policy.
-\end{enumerate}
-
-If successful, hinted SFT would provide a practical bridge between textual feedback and
-long-horizon agent learning. Instead of silently compiling every privileged intervention
-into model weights, the model learns a reusable operation: inspect available evidence,
-state the correction, and let that correction guide the next part of the trajectory.
+At deployment, nothing special happens. The model generates its normal thinking; when it
+encounters the learned situation, it should produce the corrective hint, retain it in the
+autoregressive context, and continue accordingly.

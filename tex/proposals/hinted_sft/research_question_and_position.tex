@@ -1,53 +1,46 @@
 \begin{abstract}
-On-policy self-distillation (OPSD) can inject a grounded hint into a teacher context and
-pull the unhinted student distribution toward the resulting correction. This is attractive
-because it converts semantic feedback into dense token-level supervision. However, the
-student is asked to reproduce a distribution caused by information it does not observe.
-When that information is recoverable from the deployed context, the update can compile a
-useful behavior. When it is not recoverable, the same update can teach an unsupported
-guess: the model learns what to say after an invisible intervention without learning how
-to produce or justify that intervention. This proposal studies \emph{hinted supervised
-fine-tuning} (hinted SFT), which directly trains a model to generate a grounded corrective
-hint before acting and places the generated hint in the live inference context. The
-proposal asks when this explicit intermediate improves causal faithfulness, long-horizon
-credit localization, and retention relative to OPSD, direct SFT, and reward-only training.
+On-policy self-distillation (OPSD) can insert a corrective hint into a teacher context and
+pull an unhinted student distribution toward the resulting continuation. The student,
+however, never generates the hint that caused the teacher's behavior. This can be
+undesirable when the hint expresses a diagnosis or realization that should be part of the
+model's own reasoning. The proposed alternative is simple: put the hint into the training
+trajectory as ordinary thinking tokens and use supervised fine-tuning (SFT) to teach the
+model to generate them. During deployment there is no additional component. The model
+thinks normally, generates the learned hint when the relevant situation occurs, and then
+conditions its later tokens on that hint because it is already part of the autoregressive
+prefix. This proposal compares that \emph{hinted SFT} construction with OPSD on localized
+errors in long agent trajectories.
 \end{abstract}
 
 \section{Research question and position}
 
 \paragraph{Research question.}
-For agent corrections that can be inferred from deployment-visible history, tool results,
-or environment observations, does training the model to generate and use an explicit hint
-produce more faithful and durable behavior than directly distilling a privileged
-hint-conditioned distribution into an unhinted policy?
+When a short diagnosis or reminder can be inferred from the model's current trajectory,
+is it better to train the model to generate that thought explicitly than to pull its
+unhinted continuation distribution toward a teacher that was given the thought?
 
-OPSD uses the same or a closely related policy as both student and teacher. The student
-samples a state $x$ from its own rollout. The teacher additionally receives privileged
-context $h$---for example, a verified demonstration or a short reminder at a localized
-mistake---and produces a corrected token distribution. A KL loss moves the unhinted
-student distribution toward that teacher distribution
+OPSD uses the policy with its original context as the student and the same or a related
+policy with a privileged hint as the teacher. A KL loss moves the student's token
+distribution toward the hint-conditioned teacher
 \citep{shenfeld2026selfdistillation,zhao2026selfdistilledreasoner,cursor2026composer25}.
-Composer 2.5 applies this idea to targeted textual feedback: a hint is inserted at a
-problematic turn and the original-context policy is trained toward the hint-conditioned
-policy \citep{cursor2026composer25}.
+Composer 2.5 uses this mechanism for localized textual feedback such as reminding an
+agent which tools are available after a bad tool call \citep{cursor2026composer25}.
 
-The proposal does not claim that OPSD is intrinsically non-causal or invalid. It isolates
-a narrower condition:
-\begin{center}
-  \textbf{The desired correction must be supported by information available to the
-  deployed student.}
-\end{center}
-If $h$ only restates evidence already in $x$, distillation may teach the model to attend
-to that evidence without requiring it to print the hint. If $h$ contains a variable
-unavailable from $x$, no policy conditioned only on $x$ can reliably reproduce different
-teacher actions for different values of that hidden variable. Training pressure can then
-produce an average, a dataset-prior guess, or a confident hallucination.
+That method can work: parameter updates may compile the effect of the hint into the
+unhinted policy. The concern is narrower. The teacher's continuation was caused by a hint
+that the deployed student never sees and never learns to produce. If the hint contains a
+useful intermediate diagnosis, directly matching later token probabilities does not teach
+the model the explicit reasoning step that produced those probabilities. If the hint also
+contains information that cannot be inferred from the student's context, the target may
+encourage an unsupported guess or hallucination.
 
-Hinted SFT makes the intermediate explicit. An offline reviewer first constructs a
-validated hint $h^\star$ using information that will also be available at deployment. The
-model is trained to emit $h^\star$ from $x$ before the corrected action. At inference, the
-model generates $\hat h$, places it in its own context, and conditions later tokens on it.
-The action distribution therefore changes through an observable intermediate generated
-from observable evidence. The method is intended for diagnosis, planning, constraint
-recovery, and local error correction; it is not a substitute for retrieving genuinely
-missing information.
+Hinted SFT moves the supervision to the missing step. Given a trajectory prefix $x$ and a
+short validated hint $h^\star$, train the model to generate $h^\star$ as its next thinking
+tokens. Those tokens then remain in context and naturally change the continuation. There
+is no special deployment pipeline, reviewer, second model, or hint injector. The deployed
+model simply generates its normal autoregressive reasoning.
+
+The proposal therefore applies only when the hint is supported by information already in
+the trajectory or obtainable through the normal agent interface. If the hint contains a
+hidden answer or unavailable future information, hinted SFT does not solve the problem;
+that example should not be used.
